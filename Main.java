@@ -14,7 +14,5 @@ public class Main extends JFrame {
 
   public static void main(String[] args) {
     Main frame = new Main();
-    Tile tile = new Tile();
-    System.out.println(tile);
   }
 }
