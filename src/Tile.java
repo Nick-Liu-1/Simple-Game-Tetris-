@@ -61,9 +61,9 @@ public class Tile {
     public void rotate() {
         orientation = (orientation + 1) % 4;
         int[][] temp = {{0,0,0,0},
-                        {0,0,0,0},
-                        {0,0,0,0},
-                        {0,0,0,0}};
+            {0,0,0,0},
+            {0,0,0,0},
+            {0,0,0,0}};
 
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
@@ -76,7 +76,6 @@ public class Tile {
                 tile[i][j] = temp[i][j];
             }
         }
-
     }
 
     public Tile(int choice) {

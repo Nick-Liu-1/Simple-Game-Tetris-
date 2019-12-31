@@ -6,13 +6,16 @@ public class Main extends JFrame {
     public static void main(String[] args) {
         Main frame = new Main();
 
+
     }
 
     public Main() {
         super("Tetris");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(500,500);
+        setSize(800,1000);
         setLayout(new BorderLayout());
+
+        Board board = new Board();
 
         setVisible(true);
     }
