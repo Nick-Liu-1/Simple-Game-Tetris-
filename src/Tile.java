@@ -81,7 +81,5 @@ public class Tile {
     public Tile(int choice) {
         tile = defaultTiles[choice];
         size = sizes[choice];
-        rotate();
-        System.out.println(Arrays.deepToString(tile));
     }
 }
