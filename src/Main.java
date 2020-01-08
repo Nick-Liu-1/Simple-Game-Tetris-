@@ -7,33 +7,20 @@ public class Main extends JFrame {
     javax.swing.Timer myTimer;
     GamePanel game;
 
-    private static final int[] speedCurve = { 0, 60, 48, 37, 28, 21, 16, 11, 8, 6, 4 };
-    private static int score = 0;
-    private static  int level = 5;
-    private static int lines = 0;
-    private static Tile activeTile;
-    private static ArrayList<Tile> queue = new ArrayList<>();
-    public static Board board;
-
     public static void main(String[] args) {
         Main frame = new Main();
-        board.addTile(activeTile);
 
     }
 
     public Main() {
         super("Tetris");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1000,750);
+        setSize(1000,770);
 
         myTimer = new javax.swing.Timer(10, new TickListener());
 
-        board = new Board();
-
-        game = new GamePanel(this, board);
+        game = new GamePanel(this);
         add(game);
-
-
 
         setResizable(false);
         setVisible(true);
@@ -41,10 +28,7 @@ public class Main extends JFrame {
 
     public void start(){
         myTimer.start();
-        activeTile = generateTile();
-        for (int i = 0; i < 3; i++) {
-            queue.add(generateTile());
-        }
+
     }
 
     class TickListener implements ActionListener {
@@ -53,22 +37,12 @@ public class Main extends JFrame {
             if(game != null){
                 game.move();
                 game.repaint();
-                moveTile();
             }
             counter++;
         }
 
-        public void moveTile() {
-            if (counter % speedCurve[level] == 0) {
-                board.shiftDown(activeTile);
-            }
-        }
-
     }
 
-    public static Tile generateTile() {
-        return new Tile(randint(1, 7));
-    }
 
     public static int randint(int low, int high){
         /*
@@ -87,9 +61,19 @@ class GamePanel extends JPanel implements KeyListener {
     private Image scoreBoard;
     private Image nextTiles;
     private Image boardImage;
+
+    private final int[] speedCurve = { 0, 60, 48, 37, 28, 21, 16, 11, 8, 6, 4 };
+    private int score = 0;
+    private int level = 5;
+    private int lines = 0;
+    private Tile activeTile;
+    private ArrayList<Tile> queue = new ArrayList<>();
     private Board board;
 
-    public GamePanel(Main m, Board board) {
+    private int counter = 0;
+    public int CONTROL_SPEED = 10;
+
+    public GamePanel(Main m) {
         keys = new boolean[KeyEvent.KEY_LAST+1];
         back = new ImageIcon("Assets/background.jpg").getImage();
         hold = new ImageIcon("Assets/holdBox.PNG").getImage();
@@ -98,10 +82,16 @@ class GamePanel extends JPanel implements KeyListener {
         boardImage = new ImageIcon("Assets/gameBox.jpg").getImage();
 
         mainFrame = m;
-        setSize(1000, 750);
+        setSize(1000, 770);
         addKeyListener(this);
 
-        this.board = board;
+        board = new Board();
+
+        activeTile = generateTile();
+        for (int i = 0; i < 3; i++) {
+            queue.add(generateTile());
+        }
+        this.board.addTile(activeTile);
     }
 
     public void addNotify() {
@@ -114,6 +104,19 @@ class GamePanel extends JPanel implements KeyListener {
 
     public void keyPressed(KeyEvent e) {
         keys[e.getKeyCode()] = true;
+        if (keys[KeyEvent.VK_RIGHT]) {
+            board.shiftRight(activeTile);
+        }
+        if (keys[KeyEvent.VK_LEFT]) {
+            board.shiftLeft(activeTile);
+        }
+        if (keys[KeyEvent.VK_UP]) {
+            activeTile.rotate();
+            System.out.println(Arrays.deepToString(activeTile.getTile()));
+        }
+        if (keys[KeyEvent.VK_DOWN]) {
+
+        }
     }
 
     public void keyReleased(KeyEvent e) {
@@ -124,6 +127,20 @@ class GamePanel extends JPanel implements KeyListener {
         Point mouse = MouseInfo.getPointerInfo().getLocation();
         Point offset = getLocationOnScreen();
         //System.out.println("("+(mouse.x-offset.x)+", "+(mouse.y-offset.y)+")");
+        moveTile();
+        board.update(activeTile);
+        counter++;
+    }
+
+    public void moveTile() {
+        if (counter % speedCurve[level] == 0) {
+            board.shiftDown(activeTile);
+        }
+
+    }
+
+    public static Tile generateTile() {
+        return new Tile(Main.randint(1, 7));
     }
 
     public void drawUI(Graphics g) {
