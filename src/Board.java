@@ -11,29 +11,27 @@ public class Board {
     }
 
     public boolean shiftDown(Tile tile) {
-        //System.out.println(Arrays.deepToString(board));
-        boolean valid = true;
         for (int j = 3; j >= 0; j--) {
             for (int i = 0; i < 4; i++) {
                 if (tile.getTile()[i][j] != 0) {
-                    if (tileY + j + 1 >= 22 || (board[tileX + i][tileY + j + 1] != 0 && j+1 < 3 && tile.getTile()[i][j+1] == 0)) {
-                        valid = false;
+                    if (tileY + j + 1 >= 22 || (board[tileX + i][tileY + j + 1] != 0 && (j == 3 || (j < 3 && tile.getTile()[i][j+1] == 0)))) {
+                        return false;
                     }
                 }
             }
         }
-        if (valid) {
-            for (int j = 3; j >= 0; j--) {
-                for (int i = 0; i < 4; i++) {
-                    if (tile.getTile()[i][j] != 0) {
-                        board[tileX + i][tileY + j + 1] = board[tileX + i][tileY + j];
-                        board[tileX + i][tileY + j] = 0;
-                    }
+
+        for (int j = 3; j >= 0; j--) {
+            for (int i = 0; i < 4; i++) {
+                if (tile.getTile()[i][j] != 0) {
+                    board[tileX + i][tileY + j + 1] = board[tileX + i][tileY + j];
+                    board[tileX + i][tileY + j] = 0;
                 }
             }
-            tileY++;
         }
-        return valid;
+        tileY++;
+
+        return true;
     }
 
     public boolean shiftLeft(Tile tile) {
@@ -41,7 +39,7 @@ public class Board {
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
                 if (tile.getTile()[i][j] != 0) {
-                    if (tileX + i - 1 < 0 || (i != 0 && board[tileX + i - 1][tileY + j] != 0 && tile.getTile()[i-1][j] == 0)) {
+                    if (tileX + i - 1 < 0 || (i > 0 && board[tileX + i - 1][tileY + j] != 0 && tile.getTile()[i-1][j] == 0)) {
                         valid = false;
                     }
                 }
@@ -56,9 +54,9 @@ public class Board {
                     }
                 }
             }
-            if (tileX > 0) {
-                tileX--;
-            }
+
+            tileX--;
+
         }
         return valid;
     }
@@ -89,15 +87,37 @@ public class Board {
         return valid;
     }
 
-    public void update(Tile tile) {
+    public void rotate(Tile tile) {
+        boolean valid = true;
+
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
-                //System.out.println((tileX+i) + " " + (tileY + j));
-                if (tileX + i < 10 && tileY + j < 22) {
+                if (tileX + i < 10 && tileY + j < 22 && tile.getTile()[i][j] != 0) {
+                    board[tileX + i][tileY + j] = 0;
+                }
+                if (Tile.rotated(tile)[i][j] != 0) {
+                    if (tileX + i < 0 || tileX + i >= 10 || tileY + j >= 22 || board[tileX+i][tileY+j] != 0) {
+                        valid = false;
+                    }
+                }
+            }
+        }
+
+        if (valid) {
+            tile.rotate();
+        }
+
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 4; j++) {
+                if (tileX + i < 10 && tileY + j < 22 && tile.getTile()[i][j] != 0) {
                     board[tileX + i][tileY + j] = tile.getTile()[i][j];
                 }
             }
         }
+    }
+
+    public void update(Tile tile) {
+
     }
 
     public void addTile(Tile tile) {

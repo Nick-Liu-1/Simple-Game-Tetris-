@@ -92,6 +92,21 @@ public class Tile {
         }
     }
 
+    public static int[][] rotated(Tile tile) {
+        int[][] temp = {{0,0,0,0},
+            {0,0,0,0},
+            {0,0,0,0},
+            {0,0,0,0}};
+
+        for (int i = 0; i < tile.size; i++) {
+            for (int j = 0; j < tile.size; j++) {
+                temp[j][tile.size-1-i] = tile.tile[i][j];
+            }
+        }
+
+        return temp;
+    }
+
     public Tile(int choice) {
         id = choice;
         tile = defaultTiles[id];

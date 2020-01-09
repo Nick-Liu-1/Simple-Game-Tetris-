@@ -9,7 +9,6 @@ public class Main extends JFrame {
 
     public static void main(String[] args) {
         Main frame = new Main();
-
     }
 
     public Main() {
@@ -63,6 +62,7 @@ class GamePanel extends JPanel implements KeyListener {
     private Image boardImage;
 
     private final int[] speedCurve = { 0, 60, 48, 37, 28, 21, 16, 11, 8, 6, 4 };
+    private int speed = 0;
     private int score = 0;
     private int level = 5;
     private int lines = 0;
@@ -70,7 +70,9 @@ class GamePanel extends JPanel implements KeyListener {
     private ArrayList<Tile> queue = new ArrayList<>();
     private Board board;
     private int counter = 0;
-    public final int CONTROL_SPEED = 10;
+    public final int CONTROL_SPEED = 4;
+
+
 
     public GamePanel(Main m) {
         keys = new boolean[KeyEvent.KEY_LAST+1];
@@ -110,7 +112,7 @@ class GamePanel extends JPanel implements KeyListener {
             board.shiftLeft(activeTile);
         }
         if (keys[KeyEvent.VK_UP]) {
-            activeTile.rotate();
+            board.rotate(activeTile);
             System.out.println(Arrays.deepToString(activeTile.getTile()));
         }
         if (keys[KeyEvent.VK_DOWN]) {
@@ -132,10 +134,27 @@ class GamePanel extends JPanel implements KeyListener {
     }
 
     public void moveTile() {
-        if (counter % speedCurve[level] == 0) {
-            board.shiftDown(activeTile);
+        speed = speedCurve[level];
+        if (keys[KeyEvent.VK_DOWN]) {
+            speed = CONTROL_SPEED;
+        }
+        boolean success = true;
+        if (counter % speed == 0) {
+            success = board.shiftDown(activeTile);
         }
 
+        int t;
+        if (!success) {
+
+            lockTile();
+        }
+    }
+
+    public void lockTile() {
+        activeTile = queue.get(0);
+        board.addTile(activeTile);
+        queue.remove(0);
+        queue.add(generateTile());
     }
 
     public static Tile generateTile() {
