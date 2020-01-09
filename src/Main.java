@@ -69,9 +69,8 @@ class GamePanel extends JPanel implements KeyListener {
     private Tile activeTile;
     private ArrayList<Tile> queue = new ArrayList<>();
     private Board board;
-
     private int counter = 0;
-    public int CONTROL_SPEED = 10;
+    public final int CONTROL_SPEED = 10;
 
     public GamePanel(Main m) {
         keys = new boolean[KeyEvent.KEY_LAST+1];
