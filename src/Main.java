@@ -113,7 +113,6 @@ class GamePanel extends JPanel implements KeyListener {
         }
         if (keys[KeyEvent.VK_UP]) {
             board.rotate(activeTile);
-            System.out.println(Arrays.deepToString(activeTile.getTile()));
         }
         if (keys[KeyEvent.VK_DOWN]) {
 
@@ -129,7 +128,6 @@ class GamePanel extends JPanel implements KeyListener {
         Point offset = getLocationOnScreen();
         //System.out.println("("+(mouse.x-offset.x)+", "+(mouse.y-offset.y)+")");
         moveTile();
-        board.update(activeTile);
         counter++;
     }
 
@@ -145,7 +143,7 @@ class GamePanel extends JPanel implements KeyListener {
 
         int t;
         if (!success) {
-
+            board.clearTiles();
             lockTile();
         }
     }
