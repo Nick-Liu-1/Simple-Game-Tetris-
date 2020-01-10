@@ -72,6 +72,9 @@ class GamePanel extends JPanel implements KeyListener {
     private int counter = 0;
     public final int CONTROL_SPEED = 4;
 
+    private boolean upPressed = false;
+    private boolean spacePressed = false;
+
 
 
     public GamePanel(Main m) {
@@ -105,22 +108,38 @@ class GamePanel extends JPanel implements KeyListener {
 
     public void keyPressed(KeyEvent e) {
         keys[e.getKeyCode()] = true;
+
         if (keys[KeyEvent.VK_RIGHT]) {
             board.shiftRight(activeTile);
         }
         if (keys[KeyEvent.VK_LEFT]) {
             board.shiftLeft(activeTile);
         }
-        if (keys[KeyEvent.VK_UP]) {
+        if (keys[KeyEvent.VK_UP] && !upPressed) {
+            upPressed = true;
             board.rotate(activeTile);
         }
+
         if (keys[KeyEvent.VK_DOWN]) {
 
+        }
+
+        if (keys[KeyEvent.VK_SPACE] && !spacePressed) {
+            spacePressed = true;
+            int travelled = board.hardDrop(activeTile);
+            score += travelled * 2;
         }
     }
 
     public void keyReleased(KeyEvent e) {
         keys[e.getKeyCode()] = false;
+        if (!keys[KeyEvent.VK_UP]) {
+            upPressed = false;
+        }
+
+        if (!keys[KeyEvent.VK_SPACE]) {
+            spacePressed = false;
+        }
     }
 
     public void move() {
@@ -141,10 +160,30 @@ class GamePanel extends JPanel implements KeyListener {
             success = board.shiftDown(activeTile);
         }
 
-        int t;
-        if (!success) {
-            board.clearTiles();
+        if (success) {
+            if (keys[KeyEvent.VK_DOWN]) {
+                score += 1;
+            }
+        }
+
+        else {
+            int cleared = board.clearTiles();
+            switch (cleared) {
+                case(1):
+                    score += 100 * level;
+                    break;
+                case(2):
+                    score += 300 * level;
+                    break;
+                case(3):
+                    score += 500 * level;
+                    break;
+                case(4):
+                    score += 800 * level;
+                    break;
+            }
             lockTile();
+            System.out.println(score);
         }
     }
 

@@ -143,6 +143,16 @@ public class Board {
         }
     }
 
+    public int hardDrop(Tile tile) {
+        boolean success;
+        int count = 0;
+        do {
+            success = shiftDown(tile);
+            count++;
+        } while (success);
+        return count;
+    }
+
 
     public void addTile(Tile tile) {
         tileX = 4;
