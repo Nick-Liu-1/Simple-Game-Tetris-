@@ -1,4 +1,6 @@
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.*;
 
 public class Board {
     private int[][] board = new int[10][22];
@@ -51,10 +53,8 @@ public class Board {
         }
     }
 
-
-
-    public int clearTiles() {
-        int count = 0;
+    public ArrayList<Integer> getFullRows() {
+        ArrayList<Integer> fullRows = new ArrayList<>();
         for (int j = board[0].length - 1; j >= 0; j--) {
             boolean full = true;
             for (int i = 0; i < board.length; i++) {
@@ -62,14 +62,18 @@ public class Board {
                     full = false;
                 }
             }
-
             if (full) {
-                shiftDown(j);
-                count++;
-                j++;
+                fullRows.add(j);
             }
         }
-        return count;
+        return fullRows;
+    }
+
+    public void clearTiles(ArrayList<Integer> rows) {
+        Collections.sort(rows);
+        for (int row : rows) {
+            shiftDown(row);
+        }
     }
 
     public boolean shiftLeft(Tile tile) {
@@ -96,7 +100,6 @@ public class Board {
             tileX--;
 
         }
-        System.out.println(valid);
         return valid;
     }
 
@@ -220,17 +223,15 @@ public class Board {
         }
     }
 
-    public void drawTiles(Graphics g) {
-        for (int i = 0; i < board.length; i++) {
-            for (int j = 2; j < board[0].length; j++) {
-                if (board[i][j] > 0) {
-                    g.drawImage(Tile.images[board[i][j]], 306 + 35 * i, 23
-                        + 35 * (j-2), null);
-                }
-                else if (board[i][j] < 0) {
-                    g.drawImage(GhostTile.images[-board[i][j]], 306 + 35 * i, 23 + 35 * (j-2), null);
-                }
-            }
-        }
+    public int[][] getBoard() {
+        return board;
+    }
+
+    public int getTileX() {
+        return tileX;
+    }
+
+    public int getTileY() {
+        return tileY;
     }
 }

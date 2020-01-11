@@ -31,7 +31,7 @@ public class Main extends JFrame {
 
     class TickListener implements ActionListener {
         public void actionPerformed(ActionEvent evt){
-            if(game != null){
+            if (game != null) {
                 game.move();
                 game.repaint();
             }
@@ -44,6 +44,15 @@ public class Main extends JFrame {
             Returns a random integer on the interval [low, high].
         */
         return (int) (Math.random()*(high-low+1)+low);
+    }
+
+    public static void delay(long len) {
+        try	{
+            Thread.sleep(len);
+        }
+        catch (InterruptedException ex)	{
+            System.out.println("I hate when my sleep is iterrupted");
+        }
     }
 
 }
@@ -68,12 +77,16 @@ class GamePanel extends JPanel implements KeyListener {
     private ArrayList<Tile> queue = new ArrayList<>();
     private Board board;
     private int counter = 0;
-    public final int CONTROL_SPEED = 4;
+    public final int CONTROL_DOWN_SPEED = 4;
+    public final int CONTROL_SIDE_SPEED = 8;
     private int lastTile = 0;
     private boolean swapped = false;
-
-
-
+    private boolean tileStopped = false;
+    private int stopTime = 0;
+    private boolean hardDropped = false;
+    private boolean fullRow = false;
+    private int rowTime = 0;
+    private ArrayList rows;
 
     public GamePanel(Main m) {
         keys = new boolean[KeyEvent.KEY_LAST+1];
@@ -108,12 +121,6 @@ class GamePanel extends JPanel implements KeyListener {
     public void keyPressed(KeyEvent e) {
         keys[e.getKeyCode()] = true;
 
-        if (keys[KeyEvent.VK_RIGHT]) {
-            board.shiftRight(activeTile);
-        }
-        if (keys[KeyEvent.VK_LEFT]) {
-            board.shiftLeft(activeTile);
-        }
         if (keys[KeyEvent.VK_UP] && !keysDown[KeyEvent.VK_UP]) {
             keysDown[KeyEvent.VK_UP] = true;
             board.rotate(activeTile);
@@ -123,6 +130,7 @@ class GamePanel extends JPanel implements KeyListener {
             keysDown[KeyEvent.VK_SPACE] = true;
             int travelled = board.hardDrop(activeTile);
             score += travelled * 2;
+            hardDropped = true;
         }
 
         if (keys[KeyEvent.VK_C] && !keysDown[KeyEvent.VK_C] && !swapped) {
@@ -151,11 +159,27 @@ class GamePanel extends JPanel implements KeyListener {
 
     public void moveTile() {
         speed = speedCurve[level];
+        rows = board.getFullRows();
+
         if (keys[KeyEvent.VK_DOWN]) {
-            speed = CONTROL_SPEED;
+            speed = CONTROL_DOWN_SPEED;
         }
+
+        if (keys[KeyEvent.VK_RIGHT] && counter % CONTROL_SIDE_SPEED == 0) {
+            boolean success = board.shiftRight(activeTile);
+            if (tileStopped && success) {
+                stopTime = counter;
+            }
+        }
+        if (keys[KeyEvent.VK_LEFT] && counter % CONTROL_SIDE_SPEED == 0) {
+            boolean success = board.shiftLeft(activeTile);
+            if (tileStopped && success) {
+                stopTime = counter;
+            }
+        }
+
         boolean success = true;
-        if (counter % speed == 0) {
+        if (counter % speed == 0 || tileStopped) {
             success = board.shiftDown(activeTile);
         }
 
@@ -164,28 +188,56 @@ class GamePanel extends JPanel implements KeyListener {
             if (keys[KeyEvent.VK_DOWN]) {
                 score += 1;
             }
+            tileStopped = false;
+        }
+        else {
+            if (!tileStopped && !fullRow) {
+                tileStopped = true;
+                stopTime = counter;
+            }
         }
 
-        else {
-            int cleared = board.clearTiles();
-            lines += cleared;
-            switch (cleared) {
-                case(1):
-                    score += 100 * level;
-                    break;
-                case(2):
-                    score += 300 * level;
-                    break;
-                case(3):
-                    score += 500 * level;
-                    break;
-                case(4):
-                    score += 800 * level;
-                    break;
+        if ((tileStopped && counter - stopTime == 24 || hardDropped) && !fullRow) {
+            if (rows.size() > 0) {
+                fullRow = true;
+                rowTime = counter;
+                tileStopped = false;
             }
+            else {
+                lockTile();
+                hardDropped = false;
+                level = lines / 10 + 6;
+            }
+        }
+
+        System.out.println(fullRow + " " + (counter - rowTime) + " " + tileStopped + " " + (counter - stopTime));
+        if (fullRow && counter - rowTime == 30) {
+            System.out.println("aaaaaaaaaaaaaaaaaa");
+            clearTiles();
             lockTile();
-            System.out.println(score);
+            hardDropped = false;
             level = lines / 10 + 6;
+            fullRow = false;
+        }
+
+    }
+
+    public void clearTiles() {
+        board.clearTiles(rows);
+        lines += rows.size();
+        switch (rows.size()) {
+            case(1):
+                score += 100 * level;
+                break;
+            case(2):
+                score += 300 * level;
+                break;
+            case(3):
+                score += 500 * level;
+                break;
+            case(4):
+                score += 800 * level;
+                break;
         }
     }
 
@@ -197,6 +249,7 @@ class GamePanel extends JPanel implements KeyListener {
         if (swapped) {
             swapped = false;
         }
+        tileStopped = false;
     }
 
     public void hold() {
@@ -236,7 +289,6 @@ class GamePanel extends JPanel implements KeyListener {
         g.drawImage(scoreBoard, 60, 360, null);
         g.drawImage(nextTiles, 720, 55, null);
         g.drawImage(boardImage, 300, 20, null);
-        board.drawTiles(g);
 
         // Draw hold tile
         drawPreviewTile(g, holdTile, 75, 115, 190, 125);
@@ -246,6 +298,13 @@ class GamePanel extends JPanel implements KeyListener {
             drawPreviewTile(g, queue.get(i), 740, 115 + 95 * i, 180, 100);
         }
 
+        // Score
+        if (g instanceof Graphics2D) {
+            Graphics2D g2 = (Graphics2D)g;
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+            g2.drawString(String.valueOf(score),160,450);
+        }
     }
 
     public void drawPreviewTile(Graphics g, Tile tile, int x, int y, int width, int height) {
@@ -260,10 +319,35 @@ class GamePanel extends JPanel implements KeyListener {
         }
     }
 
+    public void drawTiles(Graphics g) {
+        Graphics2D g2d = (Graphics2D) g.create();
+        float alpha;
 
+        for (int i = 0; i < board.getBoard().length; i++) {
+            for (int j = 2; j < board.getBoard()[0].length; j++) {
+                if (i - board.getTileX() < 4 && i - board.getTileX() >= 0 && j - board.getTileY() < 4 && j - board.getTileY() >= 0
+                    && board.getBoard()[i][j] == activeTile.getTile()[i-board.getTileX()][j-board.getTileY()] && tileStopped) {
+                    alpha = Math.min(1, 1 / ((float) ((counter - stopTime) % 24)) + (float) 0.2);
+                }
+                else if (fullRow && rows.contains(j)) {
+                    alpha = Math.min(1, 1 / ((float) ((counter - rowTime))));
+                }
+                else {
+                    alpha = 1;
+                }
+
+                Image inImage = board.getBoard()[i][j] > 0 ? Tile.images[board.getBoard()[i][j]] : GhostTile.images[-board.getBoard()[i][j]];
+                g2d.setComposite(AlphaComposite.SrcOver.derive(alpha));
+                int x = 306 + 35 * i;
+                int y = 23 + 35 * (j-2);
+                g2d.drawImage(inImage, x, y, this);
+
+            }
+        }
+    }
 
     public void paintComponent(Graphics g) {
         drawUI(g);
+        drawTiles(g);
     }
-
 }
