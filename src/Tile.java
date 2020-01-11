@@ -1,13 +1,15 @@
 import javax.swing.*;
 import java.awt.*;
-import java.util.*;
+import java.util.Arrays;
+
 
 public class Tile {
     private int[][] tile;
     public final int id;
     private int orientation = 0;
     private int size;
-    private int x, y;
+    private Image image;
+    private final int[][] defaultTile;
     public static final int[] sizes = { 0, 4, 3, 3, 2, 3, 3, 3 };
     public static final Image[] images = {
         null,
@@ -17,7 +19,7 @@ public class Tile {
         new ImageIcon("Assets/YellowBlock.png").getImage(),
         new ImageIcon("Assets/GreenBlock.png").getImage(),
         new ImageIcon("Assets/PurpleBlock.png").getImage(),
-        new ImageIcon("Assets/RedBlock.png").getImage()
+        new ImageIcon("Assets/RedBlock.png").getImage(),
     };
 
     private final int[][][] defaultTiles = {
@@ -51,9 +53,9 @@ public class Tile {
         },
 
         {
-            {0,5,5,0},
+            {0,5,0,0},
             {5,5,0,0},
-            {0,0,0,0},
+            {5,0,0,0},
             {0,0,0,0}
         },
 
@@ -71,6 +73,7 @@ public class Tile {
             {0,0,0,0}
         }
     };
+
 
     public void rotate() {
         orientation = (orientation + 1) % 4;
@@ -107,15 +110,76 @@ public class Tile {
         return temp;
     }
 
+    public void resetToDefault() {
+        tile = deepCopy(defaultTile);
+        orientation = 0;
+    }
 
-    public Tile(int choice) {
+    public int[][] deepCopy(int[][] arr) {
+        int[][] temp = new int[arr.length][arr[0].length];
+        for (int i = 0; i < arr.length; i++) {
+            for (int j = 0; j < arr[0].length; j++) {
+                temp[i][j] = arr[i][j];
+            }
+        }
+        return temp;
+
+    }
+
+    public Tile(int choice, int orientation) {
         id = choice;
-        tile = defaultTiles[id];
-        size = sizes[id];
-
+        defaultTile = defaultTiles[Math.abs(id)];
+        tile = deepCopy(defaultTile);
+        size = sizes[Math.abs(id)];
+        image = images[Math.abs(id)];
+        for (int i = 0; i < orientation; i++) {
+            this.rotate();
+        }
     }
 
     public int[][] getTile() {
         return tile;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public int getOrientation() {
+        return orientation;
+    }
+
+    public Image getImage() {
+        return image;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+
+}
+
+class GhostTile extends Tile {
+    public Image image;
+    public static final Image[] images = {
+        null,
+        new ImageIcon("Assets/cyansquare.png").getImage(),
+        new ImageIcon("Assets/bluesquare.png").getImage(),
+        new ImageIcon("Assets/orangesquare.png").getImage(),
+        new ImageIcon("Assets/yellowsquare.png").getImage(),
+        new ImageIcon("Assets/greensquare.png").getImage(),
+        new ImageIcon("Assets/purplesquare.png").getImage(),
+        new ImageIcon("Assets/redsquare.png").getImage()
+    };
+
+    @Override
+    public Image getImage() {
+        return image;
+    }
+
+    public GhostTile(int choice, int orientation) {
+        super(choice, orientation);
+        image = images[Math.abs(id)];
     }
 }
