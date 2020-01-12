@@ -1,5 +1,4 @@
 import java.awt.event.*;
-import java.awt.font.TextAttribute;
 import java.util.*;
 import java.awt.*;
 import javax.swing.*;
@@ -339,18 +338,18 @@ class GamePanel extends JPanel implements KeyListener {
             y = 457;
             g2.drawString(String.valueOf(score),x,y);
 
-            // Lines
-            width = fontMetrics.stringWidth(String.valueOf(lines));
-            x = 75 + (185 - width) / 2 + 3;
-            y = 550;
-            g2.drawString(String.valueOf(lines),x,y);
-
-
             // Level
             width = fontMetrics.stringWidth(String.valueOf(level));
             x = 75 + (185 - width) / 2 + 3;
-            y = 645;
+            y = 550;
             g2.drawString(String.valueOf(level),x,y);
+
+
+            // Lines
+            width = fontMetrics.stringWidth(String.valueOf(lines));
+            x = 75 + (185 - width) / 2 + 3;
+            y = 645;
+            g2.drawString(String.valueOf(lines),x,y);
         }
     }
 

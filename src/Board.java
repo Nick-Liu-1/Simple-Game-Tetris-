@@ -1,13 +1,9 @@
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.*;
 
 public class Board {
     private int[][] board = new int[10][22];
     private int tileX, tileY;
-    private final int rotateLeftShift = 0;
-    private final int rotateRightShift = 1;
-    private final int rotateUpShift = 2;
 
     public boolean canShiftDown(Tile tile) {
         for (int j = 3; j >= 0; j--) {
