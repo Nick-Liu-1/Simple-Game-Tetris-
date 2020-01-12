@@ -1,4 +1,5 @@
 import java.awt.event.*;
+import java.awt.font.TextAttribute;
 import java.util.*;
 import java.awt.*;
 import javax.swing.*;
@@ -29,6 +30,11 @@ public class Main extends JFrame {
         myTimer.start();
     }
 
+    public void gameOver() {
+        System.out.println("Game Over!!!");
+        System.exit(0);
+    }
+
     class TickListener implements ActionListener {
         public void actionPerformed(ActionEvent evt){
             if (game != null) {
@@ -45,16 +51,6 @@ public class Main extends JFrame {
         */
         return (int) (Math.random()*(high-low+1)+low);
     }
-
-    public static void delay(long len) {
-        try	{
-            Thread.sleep(len);
-        }
-        catch (InterruptedException ex)	{
-            System.out.println("I hate when my sleep is iterrupted");
-        }
-    }
-
 }
 
 class GamePanel extends JPanel implements KeyListener {
@@ -67,10 +63,10 @@ class GamePanel extends JPanel implements KeyListener {
     private Image nextTiles;
     private Image boardImage;
 
-    private final int[] speedCurve = { 0, 60, 48, 37, 28, 21, 16, 11, 8, 6, 4 };
+    private final int[] speedCurve = { 0, 60, 48, 37, 28, 21, 16, 11, 8, 6, 4, 3, 2 };
     private int speed = 0;
     private int score = 0;
-    private int level = 5;
+    private int level = 1;
     private int lines = 0;
     private Tile activeTile;
     private Tile holdTile;
@@ -86,7 +82,9 @@ class GamePanel extends JPanel implements KeyListener {
     private boolean hardDropped = false;
     private boolean fullRow = false;
     private int rowTime = 0;
-    private ArrayList rows;
+    private ArrayList<Integer> rows;
+    private int comboCount = 0;
+    private boolean lastClearTetris = false;
 
     public GamePanel(Main m) {
         keys = new boolean[KeyEvent.KEY_LAST+1];
@@ -152,7 +150,7 @@ class GamePanel extends JPanel implements KeyListener {
     public void move() {
         Point mouse = MouseInfo.getPointerInfo().getLocation();
         Point offset = getLocationOnScreen();
-        //System.out.println("("+(mouse.x-offset.x)+", "+(mouse.y-offset.y)+")");
+        System.out.println("("+(mouse.x-offset.x)+", "+(mouse.y-offset.y)+")");
         moveTile();
         counter++;
     }
@@ -166,28 +164,37 @@ class GamePanel extends JPanel implements KeyListener {
         }
 
         if (keys[KeyEvent.VK_RIGHT] && counter % CONTROL_SIDE_SPEED == 0) {
-            boolean success = board.shiftRight(activeTile);
-            if (tileStopped && success) {
-                stopTime = counter;
+            boolean success = board.canShiftRight(activeTile);
+            if (success) {
+                board.shiftRight(activeTile);
+                if (tileStopped) {
+                    stopTime = counter;
+                }
             }
         }
         if (keys[KeyEvent.VK_LEFT] && counter % CONTROL_SIDE_SPEED == 0) {
-            boolean success = board.shiftLeft(activeTile);
-            if (tileStopped && success) {
-                stopTime = counter;
+            boolean success = board.canShiftLeft(activeTile);
+            if (success) {
+                board.shiftLeft(activeTile);
+                if (tileStopped) {
+                    stopTime = counter;
+                }
             }
         }
 
         boolean success = true;
         if (counter % speed == 0 || tileStopped) {
-            success = board.shiftDown(activeTile);
+            success = board.canShiftDown(activeTile);
+            if (success) {
+                board.shiftDown(activeTile);
+                if (keys[KeyEvent.VK_DOWN]) {
+                    score += 1;
+                }
+            }
         }
 
         if (success) {
             board.ghostTile(activeTile);
-            if (keys[KeyEvent.VK_DOWN]) {
-                score += 1;
-            }
             tileStopped = false;
         }
         else {
@@ -202,21 +209,22 @@ class GamePanel extends JPanel implements KeyListener {
                 fullRow = true;
                 rowTime = counter;
                 tileStopped = false;
+                comboCount++;
             }
             else {
+                comboCount = 0;
                 lockTile();
                 hardDropped = false;
-                level = lines / 10 + 6;
+                level = lines / 10 + 1;
+                lastClearTetris = false;
             }
         }
 
-        System.out.println(fullRow + " " + (counter - rowTime) + " " + tileStopped + " " + (counter - stopTime));
         if (fullRow && counter - rowTime == 30) {
-            System.out.println("aaaaaaaaaaaaaaaaaa");
             clearTiles();
             lockTile();
             hardDropped = false;
-            level = lines / 10 + 6;
+            level = lines / 10 + 1;
             fullRow = false;
         }
 
@@ -225,6 +233,7 @@ class GamePanel extends JPanel implements KeyListener {
     public void clearTiles() {
         board.clearTiles(rows);
         lines += rows.size();
+
         switch (rows.size()) {
             case(1):
                 score += 100 * level;
@@ -237,13 +246,26 @@ class GamePanel extends JPanel implements KeyListener {
                 break;
             case(4):
                 score += 800 * level;
+                if (lastClearTetris) {
+                    score += 400 * level;
+                }
+                lastClearTetris = true;
                 break;
         }
+        if (rows.size() < 4) {
+            lastClearTetris = false;
+        }
+        score += 50 * level * comboCount;
     }
 
     public void lockTile() {
         activeTile = queue.get(0);
-        board.addTile(activeTile);
+
+        boolean canAddTile = board.addTile(activeTile);
+        if (!canAddTile) {
+            mainFrame.gameOver();
+        }
+
         queue.remove(0);
         queue.add(generateTile());
         if (swapped) {
@@ -298,12 +320,37 @@ class GamePanel extends JPanel implements KeyListener {
             drawPreviewTile(g, queue.get(i), 740, 115 + 95 * i, 180, 100);
         }
 
-        // Score
+        // Text
         if (g instanceof Graphics2D) {
-            Graphics2D g2 = (Graphics2D)g;
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            Graphics2D g2 = (Graphics2D) g;
+            Font helvetica = new Font("Helvetica", Font.PLAIN, 36);
+            FontMetrics fontMetrics = new JLabel().getFontMetrics(helvetica);
 
-            g2.drawString(String.valueOf(score),160,450);
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setFont(helvetica);
+            g2.setColor(Color.WHITE);
+
+            int x, y;
+            int width;
+
+            // Score
+            width = fontMetrics.stringWidth(String.valueOf(score));
+            x = 75 + (185 - width) / 2 + 3;
+            y = 457;
+            g2.drawString(String.valueOf(score),x,y);
+
+            // Lines
+            width = fontMetrics.stringWidth(String.valueOf(lines));
+            x = 75 + (185 - width) / 2 + 3;
+            y = 550;
+            g2.drawString(String.valueOf(lines),x,y);
+
+
+            // Level
+            width = fontMetrics.stringWidth(String.valueOf(level));
+            x = 75 + (185 - width) / 2 + 3;
+            y = 645;
+            g2.drawString(String.valueOf(level),x,y);
         }
     }
 
