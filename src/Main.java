@@ -410,14 +410,14 @@ class StartMenu extends JFrame implements ActionListener {
     JButton menuHighScores = new JButton ("HIGH SCORES");
     JButton menuHowToPlay = new JButton ("HOW TO PLAY");
     JButton menuSettings = new JButton ("Settings");
-    JButton instructionFirstNext = JButton ("NEXT");
-    JButton instructionsMidNext = JButton ("NEXT");
-    JButton instructionsMidPrev = JButton ("BACK");
-    JButton instructionsLastPrev = JButton ("BACK");
-    JButton done = JButton("DONE");
+    JButton instructionFirstNext = new JButton ("NEXT");
+    JButton instructionsMidNext = new JButton ("NEXT");
+    JButton instructionsMidPrev = new JButton ("BACK");
+    JButton instructionsLastPrev = new JButton ("BACK");
+    JButton done = new JButton("DONE");
     
     
-    public McKCard() {
+    public StartMenu() {
     	menuPlay.addActionListener(this);
     	menuHighScores.addActionListener(this);
     	menuHowToPlay.addActionListener(this);
@@ -433,7 +433,7 @@ class StartMenu extends JFrame implements ActionListener {
     	menuPage.add(menuPlay);
     	menuPage.add(menuHighScores);
     	menuPage.add(menuHowToPlay);
-    	menuPage.add(Settings);
+    	menuPage.add(menuSettings);
     	
     	JPanel gamePage = new JPanel(GamePanel);
     	
@@ -449,7 +449,7 @@ class StartMenu extends JFrame implements ActionListener {
     	
     }
     
-    public void actionPerformed(ActionEvnet evt){
+    public void actionPerformed(ActionEvent evt){
     	Object source = evt.getsource();
     	if (source == menuPlay)
     		cLayout.show(cards, "game");
