@@ -7,7 +7,6 @@ public class Main extends JFrame implements ActionListener {
     javax.swing.Timer myTimer;
     GamePanel game;
 
-
     private Image firstPage;
     private Image secondPage;
     private Image thirdPage;
@@ -18,7 +17,7 @@ public class Main extends JFrame implements ActionListener {
     JButton menuPlay = new JButton ("PLAY");
     JButton menuHighScores = new JButton ("HIGH SCORES");
     JButton menuHowToPlay = new JButton ("HOW TO PLAY");
-    JButton menuSettings = new JButton ("Settings");
+    JButton menuSettings = new JButton ("SETTINGS");
     JButton instructionFirstNext = new JButton ("NEXT");
     JButton instructionsMidNext = new JButton ("NEXT");
     JButton instructionsMidPrev = new JButton ("BACK");
@@ -97,6 +96,7 @@ public class Main extends JFrame implements ActionListener {
         Object source = evt.getSource();
         if (source == menuPlay) {
             cLayout.show(cards,"game");
+            game.grabFocus();
             game.init();
         }
 
@@ -110,6 +110,7 @@ public class Main extends JFrame implements ActionListener {
     class TickListener implements ActionListener {
         public void actionPerformed(ActionEvent evt){
             if (game != null) {
+                game.grabFocus();
                 game.move();
                 game.repaint();
             }
@@ -182,6 +183,11 @@ class GamePanel extends JPanel implements KeyListener {
         super.addNotify();
         requestFocus();
         mainFrame.start();
+    }
+
+    public void grabFocus() {
+        super.addNotify();
+        requestFocus();
     }
 
     public void keyTyped(KeyEvent e) {}
@@ -381,6 +387,7 @@ class GamePanel extends JPanel implements KeyListener {
     }
 
     public void drawUI(Graphics g) {
+        System.out.println(counter);
         g.drawImage(back,0,0,null);
         g.drawImage(hold, 60, 55, null);
         g.drawImage(scoreBoard, 60, 360, null);
