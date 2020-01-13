@@ -3,9 +3,27 @@ import java.util.*;
 import java.awt.*;
 import javax.swing.*;
 
-public class Main extends JFrame {
+public class Main extends JFrame implements ActionListener {
     javax.swing.Timer myTimer;
     GamePanel game;
+
+
+    private Image firstPage;
+    private Image secondPage;
+    private Image thirdPage;
+
+    JPanel cards;
+    CardLayout cLayout = new CardLayout();
+
+    JButton menuPlay = new JButton ("PLAY");
+    JButton menuHighScores = new JButton ("HIGH SCORES");
+    JButton menuHowToPlay = new JButton ("HOW TO PLAY");
+    JButton menuSettings = new JButton ("Settings");
+    JButton instructionFirstNext = new JButton ("NEXT");
+    JButton instructionsMidNext = new JButton ("NEXT");
+    JButton instructionsMidPrev = new JButton ("BACK");
+    JButton instructionsLastPrev = new JButton ("BACK");
+    JButton done = new JButton("DONE");
 
     public static void main(String[] args) {
         Main frame = new Main();
@@ -16,9 +34,35 @@ public class Main extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1000,770);
 
-        myTimer = new javax.swing.Timer(10, new TickListener());
+        menuPlay.addActionListener(this);
+        menuHighScores.addActionListener(this);
+        menuHowToPlay.addActionListener(this);
+        menuSettings.addActionListener(this);
+        instructionFirstNext.addActionListener(this);
+        instructionsMidNext.addActionListener(this);
+        instructionsMidPrev.addActionListener(this);
+        instructionsLastPrev.addActionListener(this);
+        done.addActionListener(this);
+
+        JPanel menuPage = new JPanel();
+        menuPage.setLayout(new BoxLayout(menuPage,BoxLayout.Y_AXIS));
+        menuPage.add(menuPlay);
+        menuPage.add(menuHighScores);
+        menuPage.add(menuHowToPlay);
+        menuPage.add(menuSettings);
+
         game = new GamePanel(this);
-        add(game);
+
+        JPanel instructionFirstPage = new JPanel();
+        firstPage = new ImageIcon("Assets/howtoplay1.jpg").getImage();
+
+        cards = new JPanel(cLayout);
+        cards.add(menuPage, "menu");
+        cards.add(game,"game");
+
+        add(cards);
+
+        myTimer = new javax.swing.Timer(10, new TickListener());
 
         setResizable(false);
         setVisible(true);
@@ -34,6 +78,20 @@ public class Main extends JFrame {
         System.exit(0);
     }
 
+    public void actionPerformed(ActionEvent evt){
+        Object source = evt.getSource();
+        if (source == menuPlay) {
+            cLayout.show(cards,"game");
+            game.init();
+        }
+
+        if (game != null) {
+            game.move();
+            game.repaint();
+        }
+    }
+
+
     class TickListener implements ActionListener {
         public void actionPerformed(ActionEvent evt){
             if (game != null) {
@@ -42,7 +100,6 @@ public class Main extends JFrame {
             }
         }
     }
-
 
     public static int randint(int low, int high){
         /*
@@ -104,7 +161,6 @@ class GamePanel extends JPanel implements KeyListener {
         for (int i = 0; i < 3; i++) {
             queue.add(generateTile());
         }
-        this.board.addTile(activeTile);
     }
 
     public void addNotify() {
@@ -146,10 +202,15 @@ class GamePanel extends JPanel implements KeyListener {
         }
     }
 
+    public void init() {
+        this.board.addTile(activeTile);
+    }
+
     public void move() {
-        Point mouse = MouseInfo.getPointerInfo().getLocation();
+        // TODO: Fix "component must be showing on the screen to determine its location" error
+        /*Point mouse = MouseInfo.getPointerInfo().getLocation();
         Point offset = getLocationOnScreen();
-        System.out.println("("+(mouse.x-offset.x)+", "+(mouse.y-offset.y)+")");
+        System.out.println("("+(mouse.x-offset.x)+", "+(mouse.y-offset.y)+")");*/
         moveTile();
         counter++;
     }
@@ -398,62 +459,3 @@ class GamePanel extends JPanel implements KeyListener {
     }
 }
 
-class StartMenu extends JFrame implements ActionListener {
-	private Image firstPage;
-	private Image secondPage;
-	private Image thirdPage;
-	
-    JPanel cards;
-    CardLayout cLayout = new CardLayout();
-    
-    JButton menuPlay = new JButton ("PLAY");
-    JButton menuHighScores = new JButton ("HIGH SCORES");
-    JButton menuHowToPlay = new JButton ("HOW TO PLAY");
-    JButton menuSettings = new JButton ("Settings");
-    JButton instructionFirstNext = new JButton ("NEXT");
-    JButton instructionsMidNext = new JButton ("NEXT");
-    JButton instructionsMidPrev = new JButton ("BACK");
-    JButton instructionsLastPrev = new JButton ("BACK");
-    JButton done = new JButton("DONE");
-    
-    
-    public StartMenu() {
-    	menuPlay.addActionListener(this);
-    	menuHighScores.addActionListener(this);
-    	menuHowToPlay.addActionListener(this);
-    	menuSettings.addActionListener(this);
-    	instructionFirstNext.addActionListener(this);
-    	instructionsMidNext.addActionListener(this);
-    	instructionsMidPrev.addActionListener(this);
-    	instructionsLastPrev.addActionListener(this);
-    	done.addActionListner(this);
-    	
-    	JPanel menuPage = new JPanel();
-    	menuPage.setLayout(new BoxLayout(menuPage,BoxLayout.Y_AXIS));
-    	menuPage.add(menuPlay);
-    	menuPage.add(menuHighScores);
-    	menuPage.add(menuHowToPlay);
-    	menuPage.add(menuSettings);
-    	
-    	JPanel gamePage = new JPanel(GamePanel);
-    	
-    	JPanel instructionFirstPage = new JPanel();
-    	firstPage = new ImageIcon("Assets/howtoplay1.jpg").getImage();
-    	
-    	cards = new JPanel(cLayout);
-    	cards.add(menuPage, "menu");
-    	cards.add(gamePage,"game");
-    	
-    	add(cards);
-    	
-    	
-    }
-    
-    public void actionPerformed(ActionEvent evt){
-    	Object source = evt.getsource();
-    	if (source == menuPlay)
-    		cLayout.show(cards, "game");
-    }
-    
-    
-}
