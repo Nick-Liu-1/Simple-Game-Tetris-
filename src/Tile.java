@@ -161,7 +161,7 @@ public class Tile {
 }
 
 class GhostTile extends Tile {
-    public Image image;
+    private Image image;
     public static final Image[] images = {
         null,
         new ImageIcon("Assets/cyansquare.png").getImage(),
