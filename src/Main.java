@@ -43,13 +43,28 @@ public class Main extends JFrame implements ActionListener {
         instructionsMidPrev.addActionListener(this);
         instructionsLastPrev.addActionListener(this);
         done.addActionListener(this);
+        
+        menuPlay.setAlignmentX(CENTER_ALIGNMENT);
+        menuHighScores.setAlignmentX(CENTER_ALIGNMENT);
+        menuHowToPlay.setAlignmentX(CENTER_ALIGNMENT);
+        menuSettings.setAlignmentX(CENTER_ALIGNMENT);
+        
+        menuPlay.setPreferredSize(new Dimension(40, 40));
+		menuHighScores.setPreferredSize(new Dimension(40, 40));
+		menuHowToPlay.setPreferredSize(new Dimension(40, 40));
+		menuSettings.setPreferredSize(new Dimension(40, 40));
 
         JPanel menuPage = new JPanel();
         menuPage.setLayout(new BoxLayout(menuPage,BoxLayout.Y_AXIS));
+        menuPage.add(Box.createVerticalGlue());
         menuPage.add(menuPlay);
+        menuPage.add(Box.createRigidArea(new Dimension(0,15)));
         menuPage.add(menuHighScores);
+        menuPage.add(Box.createRigidArea(new Dimension(0,15)));
         menuPage.add(menuHowToPlay);
+       	menuPage.add(Box.createRigidArea(new Dimension(0,15)));
         menuPage.add(menuSettings);
+        menuPage.add(Box.createVerticalGlue());
 
         game = new GamePanel(this);
 
