@@ -22,7 +22,7 @@ public class Main extends JFrame {
 
         setResizable(false);
         setVisible(true);
-
+		
     }
 
     public void start(){
@@ -144,7 +144,7 @@ class GamePanel extends JPanel implements KeyListener {
     public void move() {
         Point mouse = MouseInfo.getPointerInfo().getLocation();
         Point offset = getLocationOnScreen();
-        //System.out.println("("+(mouse.x-offset.x)+", "+(mouse.y-offset.y)+")");
+        System.out.println("("+(mouse.x-offset.x)+", "+(mouse.y-offset.y)+")");
         moveTile();
         counter++;
     }
@@ -266,4 +266,64 @@ class GamePanel extends JPanel implements KeyListener {
         drawUI(g);
     }
 
+}
+
+class StartMenu extends JFrame implements ActionListener {
+	private Image firstPage;
+	private Image secondPage;
+	private Image thirdPage;
+	
+    JPanel cards;
+    CardLayout cLayout = new CardLayout();
+    
+    JButton menuPlay = new JButton ("PLAY");
+    JButton menuHighScores = new JButton ("HIGH SCORES");
+    JButton menuHowToPlay = new JButton ("HOW TO PLAY");
+    JButton menuSettings = new JButton ("Settings");
+    JButton instructionFirstNext = JButton ("NEXT");
+    JButton instructionsMidNext = JButton ("NEXT");
+    JButton instructionsMidPrev = JButton ("BACK");
+    JButton instructionsLastPrev = JButton ("BACK");
+    JButton done = JButton("DONE");
+    
+    
+    public McKCard() {
+    	menuPlay.addActionListener(this);
+    	menuHighScores.addActionListener(this);
+    	menuHowToPlay.addActionListener(this);
+    	menuSettings.addActionListener(this);
+    	instructionFirstNext.addActionListener(this);
+    	instructionsMidNext.addActionListener(this);
+    	instructionsMidPrev.addActionListener(this);
+    	instructionsLastPrev.addActionListener(this);
+    	done.addActionListner(this);
+    	
+    	JPanel menuPage = new JPanel();
+    	menuPage.setLayout(new BoxLayout(menuPage,BoxLayout.Y_AXIS));
+    	menuPage.add(menuPlay);
+    	menuPage.add(menuHighScores);
+    	menuPage.add(menuHowToPlay);
+    	menuPage.add(Settings);
+    	
+    	JPanel gamePage = new JPanel(GamePanel);
+    	
+    	JPanel instructionFirstPage = new JPanel();
+    	firstPage = new ImageIcon("Assets/howtoplay1.jpg").getImage();
+    	
+    	cards = new JPanel(cLayout);
+    	cards.add(menuPage, "menu");
+    	cards.add(gamePage,"game");
+    	
+    	add(cards);
+    	
+    	
+    }
+    
+    public void actionPerformed(ActionEvnet evt){
+    	Object source = evt.getsource();
+    	if (source == menuPlay)
+    		cLayout.show(cards, "game");
+    }
+    
+    
 }
