@@ -1,4 +1,5 @@
 import java.awt.event.*;
+import java.io.IOException;
 import java.util.*;
 import java.awt.*;
 import javax.swing.*;
@@ -19,10 +20,14 @@ public class Main extends JFrame implements ActionListener {
     JButton instructionsMidPrev = new JButton ("BACK");
     JButton instructionsLastPrev = new JButton ("BACK");
     JButton done = new JButton("DONE");
+    JButton home = new JButton("HOME");
 
     Menu menuPage;
     HighScores highScorePage;
     GameOver gameOver;
+    HowToPlay howToPlay1;
+    HowToPlay howToPlay2;
+    HowToPlay howToPlay3;
 
     public static void main(String[] args) {
         Main frame = new Main();
@@ -33,52 +38,39 @@ public class Main extends JFrame implements ActionListener {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1000,770);
 
-        menuPlay.addActionListener(this);
-        menuHighScores.addActionListener(this);
-        menuHowToPlay.addActionListener(this);
-        menuSettings.addActionListener(this);
-        instructionFirstNext.addActionListener(this);
-        instructionsMidNext.addActionListener(this);
-        instructionsMidPrev.addActionListener(this);
-        instructionsLastPrev.addActionListener(this);
-        done.addActionListener(this);
-
-        menuPlay.setAlignmentX(CENTER_ALIGNMENT);
-        menuHighScores.setAlignmentX(CENTER_ALIGNMENT);
-        menuHowToPlay.setAlignmentX(CENTER_ALIGNMENT);
-        menuSettings.setAlignmentX(CENTER_ALIGNMENT);
-
-        menuPlay.setPreferredSize(new Dimension(40, 40));
-        menuHighScores.setPreferredSize(new Dimension(40, 40));
-        menuHowToPlay.setPreferredSize(new Dimension(40, 40));
-        menuSettings.setPreferredSize(new Dimension(40, 40));
-
-        // Menu
-        menuPage = new Menu();
-        drawMenu(menuPage);
-
-        // High Score
-        highScorePage = new HighScores();
-        drawHighScore(highScorePage);
-
-        // Instructions
-        JPanel instructionFirstPage = new JPanel();
-
-
-        // GameOver
-        gameOver = new GameOver();
-
-        // GamePanel
-        game = new GamePanel(this);
-
-
+        addButtons();
 
         // Cards
         cards = new JPanel(cLayout);
+
+        // Menu
+        menuPage = new Menu();
+        menu();
         cards.add(menuPage, "menu");
+
+        // High Score
+        highScorePage = new HighScores();
+        highScore();
         cards.add(highScorePage,"high score");
+
+        // Instructions
+
+        howToPlay1 = new HowToPlay(1);
+        cards.add(howToPlay1,"how to play 1");
+        howToPlay2 = new HowToPlay(2);
+        cards.add(howToPlay2,"how to play 2");
+        howToPlay3 = new HowToPlay(3);
+        cards.add(howToPlay3,"how to play 3");
+        howToPlay();
+
+        // GamePanel
+        game = new GamePanel(this);
         cards.add(game,"game");
+
+        // GameOver
+        gameOver = new GameOver();
         cards.add(gameOver, "game over");
+
 
         add(cards);
 
@@ -89,7 +81,22 @@ public class Main extends JFrame implements ActionListener {
 
     }
 
-    public void drawMenu(Menu menuPage) {
+    public void addButtons() {
+        instructionFirstNext.addActionListener(this);
+        instructionsMidNext.addActionListener(this);
+        instructionsMidPrev.addActionListener(this);
+        instructionsLastPrev.addActionListener(this);
+        done.addActionListener(this);
+
+    }
+
+    public void menu() {
+        // Buttons
+        menuPlay.addActionListener(this);
+        menuHighScores.addActionListener(this);
+        menuHowToPlay.addActionListener(this);
+        menuSettings.addActionListener(this);
+
         menuPage.setLayout(new BoxLayout(menuPage,BoxLayout.Y_AXIS));
         menuPage.add(Box.createVerticalGlue());
         menuPage.add(menuPlay);
@@ -100,20 +107,40 @@ public class Main extends JFrame implements ActionListener {
         menuPage.add(Box.createRigidArea(new Dimension(0,15)));
         menuPage.add(menuSettings);
         menuPage.add(Box.createVerticalGlue());
+
+        menuPlay.setAlignmentX(CENTER_ALIGNMENT);
+        menuHighScores.setAlignmentX(CENTER_ALIGNMENT);
+        menuHowToPlay.setAlignmentX(CENTER_ALIGNMENT);
+        menuSettings.setAlignmentX(CENTER_ALIGNMENT);
+
+        menuPlay.setPreferredSize(new Dimension(40, 40));
+        menuHighScores.setPreferredSize(new Dimension(40, 40));
+        menuHowToPlay.setPreferredSize(new Dimension(40, 40));
+        menuSettings.setPreferredSize(new Dimension(40, 40));
     }
 
-    public void drawHighScore(JPanel highScorePage) {
+    public void highScore() {
+        highScorePage.setLayout(null);
+        home.addActionListener(this);
+        home.setBounds(315, 600, 100, 40);
+        highScorePage.add(home);
 
     }
+
+    public void howToPlay() {
+
+    }
+
 
     public void start(){
         myTimer.start();
     }
 
-    public void gameOver() {
-        started = false;
+    public void gameOver(int score) {
         cLayout.show(cards, "game over");
-        //System.out.println("Game Over!!!");
+        String name = "";
+        highScorePage.addScore(name, score);
+        System.out.println("Game Over!!!");
         //System.exit(0);
     }
 
@@ -128,7 +155,20 @@ public class Main extends JFrame implements ActionListener {
         }
 
         if (source == menuHighScores) {
+            try {
+                highScorePage.readFromFile("scores.txt");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             cLayout.show(cards,"high score");
+        }
+
+        if (source == menuHowToPlay) {
+            cLayout.show(cards, "how to play 1");
+        }
+
+        if (source == home) {
+            cLayout.show(cards,"menu");
         }
 
         if (game != null) {
@@ -205,10 +245,6 @@ class GamePanel extends JPanel implements KeyListener {
 
         board = new Board();
 
-        activeTile = generateTile();
-        for (int i = 0; i < 3; i++) {
-            queue.add(generateTile());
-        }
     }
 
     public void addNotify() {
@@ -257,7 +293,11 @@ class GamePanel extends JPanel implements KeyListener {
 
     public void init() {
         started = true;
-        this.board.addTile(activeTile);
+        activeTile = generateTile();
+        for (int i = 0; i < 3; i++) {
+            queue.add(generateTile());
+        }
+        board.addTile(activeTile);
     }
 
     public void move() {
@@ -265,9 +305,9 @@ class GamePanel extends JPanel implements KeyListener {
             Point mouse = MouseInfo.getPointerInfo().getLocation();
             Point offset = getLocationOnScreen();
             System.out.println("("+(mouse.x-offset.x)+", "+(mouse.y-offset.y)+")");
+            moveTile();
+            counter++;
         }
-        moveTile();
-        counter++;
     }
 
     public void moveTile() {
@@ -377,8 +417,9 @@ class GamePanel extends JPanel implements KeyListener {
 
         boolean canAddTile = board.addTile(activeTile);
         if (!canAddTile) {
-            mainFrame.gameOver();
+            mainFrame.gameOver(score);
             started = false;
+            return;
         }
 
         queue.remove(0);
