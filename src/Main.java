@@ -7,10 +7,6 @@ public class Main extends JFrame implements ActionListener {
     javax.swing.Timer myTimer;
     GamePanel game;
 
-    private Image firstPage;
-    private Image secondPage;
-    private Image thirdPage;
-
     JPanel cards;
     CardLayout cLayout = new CardLayout();
 
@@ -25,6 +21,8 @@ public class Main extends JFrame implements ActionListener {
     JButton done = new JButton("DONE");
 
     Menu menuPage;
+    HighScores highScorePage;
+    GameOver gameOver;
 
     public static void main(String[] args) {
         Main frame = new Main();
@@ -60,20 +58,27 @@ public class Main extends JFrame implements ActionListener {
         drawMenu(menuPage);
 
         // High Score
-        HighScores highScorePage = new HighScores();
+        highScorePage = new HighScores();
         drawHighScore(highScorePage);
 
         // Instructions
         JPanel instructionFirstPage = new JPanel();
-        firstPage = new ImageIcon("Assets/howtoplay1.jpg").getImage();
 
+
+        // GameOver
+        gameOver = new GameOver();
+
+        // GamePanel
         game = new GamePanel(this);
+
+
 
         // Cards
         cards = new JPanel(cLayout);
         cards.add(menuPage, "menu");
         cards.add(highScorePage,"high score");
         cards.add(game,"game");
+        cards.add(gameOver, "game over");
 
         add(cards);
 
@@ -106,8 +111,10 @@ public class Main extends JFrame implements ActionListener {
     }
 
     public void gameOver() {
-        System.out.println("Game Over!!!");
-        System.exit(0);
+        started = false;
+        cLayout.show(cards, "game over");
+        //System.out.println("Game Over!!!");
+        //System.exit(0);
     }
 
     public void actionPerformed(ActionEvent evt){
@@ -150,6 +157,7 @@ public class Main extends JFrame implements ActionListener {
 }
 
 class GamePanel extends JPanel implements KeyListener {
+    private boolean started = false;
     private boolean[] keys;
     private boolean[] keysDown;
     private Main mainFrame;
@@ -248,14 +256,16 @@ class GamePanel extends JPanel implements KeyListener {
     }
 
     public void init() {
+        started = true;
         this.board.addTile(activeTile);
     }
 
     public void move() {
-        // TODO: Fix "component must be showing on the screen to determine its location" error
-        /*Point mouse = MouseInfo.getPointerInfo().getLocation();
-        Point offset = getLocationOnScreen();
-        System.out.println("("+(mouse.x-offset.x)+", "+(mouse.y-offset.y)+")");*/
+        if (started) {
+            Point mouse = MouseInfo.getPointerInfo().getLocation();
+            Point offset = getLocationOnScreen();
+            System.out.println("("+(mouse.x-offset.x)+", "+(mouse.y-offset.y)+")");
+        }
         moveTile();
         counter++;
     }
@@ -332,7 +342,6 @@ class GamePanel extends JPanel implements KeyListener {
             level = lines / 10 + 1;
             fullRow = false;
         }
-
     }
 
     public void clearTiles() {
@@ -369,6 +378,7 @@ class GamePanel extends JPanel implements KeyListener {
         boolean canAddTile = board.addTile(activeTile);
         if (!canAddTile) {
             mainFrame.gameOver();
+            started = false;
         }
 
         queue.remove(0);

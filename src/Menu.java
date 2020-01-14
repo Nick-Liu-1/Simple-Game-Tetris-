@@ -19,3 +19,17 @@ public class Menu extends JPanel {
 class HighScores extends JPanel {
 
 }
+
+class GameOver extends JPanel {
+
+    @Override
+    public void addNotify() {
+        super.addNotify();
+        requestFocus();
+    }
+
+    @Override
+    public void paintComponent(Graphics g) {
+
+    }
+}
