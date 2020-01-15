@@ -13,19 +13,40 @@ public class Main extends JFrame implements ActionListener {
     CardLayout cLayout = new CardLayout();
 
     // Buttons
-    JButton menuPlay = new JButton ("PLAY");
-    JButton menuHighScores = new JButton ("HIGH SCORES");
-    JButton menuHowToPlay = new JButton ("HOW TO PLAY");
-    JButton menuSettings = new JButton ("SETTINGS");
-    JButton instructionFirstNext = new JButton ("NEXT");
-    JButton instructionsMidNext = new JButton ("NEXT");
-    JButton instructionsMidPrev = new JButton ("BACK");
-    JButton instructionsLastPrev = new JButton ("BACK");
-    JButton home = new JButton("HOME");
-    JButton home1 = new JButton("HOME");
-    JButton done = new JButton("DONE");
-    JButton done1 = new JButton("DONE");
-    JButton done2 = new JButton("DONE");
+    ImageIcon menuPlayImage = new ImageIcon("Buttons/play.png");
+    JButton menuPlay = new JButton(menuPlayImage);
+
+    ImageIcon menuHighScoresImage = new ImageIcon("Buttons/highScores.png");
+    JButton menuHighScores = new JButton (menuHighScoresImage);
+
+    ImageIcon menuHowToPlayImage = new ImageIcon("Buttons/howtoplay.png");
+    JButton menuHowToPlay = new JButton (menuHowToPlayImage);
+
+    //ImageIcon menuSettingsImage = new ImageIcon("Buttons/options.png");
+    //JButton menuSettings = new JButton (menuSettingsImage);
+
+    ImageIcon homeImage = new ImageIcon("Buttons/home.png");
+    JButton home = new JButton(homeImage);
+    JButton home1 = new JButton(homeImage);
+    JButton home2 = new JButton(homeImage);
+
+    ImageIcon doneImage = new ImageIcon("Buttons/done.png");
+    JButton done = new JButton(doneImage);
+    JButton done1 = new JButton(doneImage);
+    JButton done2 = new JButton(doneImage);
+
+    ImageIcon leftArrowImage = new ImageIcon("Buttons/prev.png");
+    JButton leftArrow = new JButton(leftArrowImage);
+    JButton leftArrow1 = new JButton(leftArrowImage);
+
+    ImageIcon rightArrowImage = new ImageIcon("Buttons/prevClick.png");
+    JButton rightArrow = new JButton(rightArrowImage);
+    JButton rightArrow1 = new JButton(rightArrowImage);
+
+
+    JTextField nickname;
+    String name = "";
+    int score = 0;
 
     // Pages
     Menu menuPage;
@@ -37,11 +58,7 @@ public class Main extends JFrame implements ActionListener {
     Settings settings;
 
     // Sounds
-    public static final AudioPlayer music = new AudioPlayer("Assets/Theme.wav", true);
-    public static final AudioPlayer dropTile = new AudioPlayer("Assets/dropTile.wav", false);
-    public static final AudioPlayer lineDrop = new AudioPlayer("Assets/lineDrop.wav", false);
-    public static final AudioPlayer lose = new AudioPlayer("Assets/lose.wav", false);
-    public static final AudioPlayer rotateTile = new AudioPlayer("Assets/rotateTile.wav", false);
+
 
     public static void main(String[] args) throws UnsupportedAudioFileException, IOException, LineUnavailableException {
         Main frame = new Main();
@@ -77,9 +94,9 @@ public class Main extends JFrame implements ActionListener {
         howToPlay();
 
         // Settings
-        settings = new Settings();
-        cards.add(settings, "settings");
-        settings();
+        //settings = new Settings();
+        //cards.add(settings, "settings");
+        //settings();
 
         // GamePanel
         game = new GamePanel(this);
@@ -100,11 +117,6 @@ public class Main extends JFrame implements ActionListener {
     }
 
     public void addButtons() {
-        instructionFirstNext.addActionListener(this);
-        instructionsMidNext.addActionListener(this);
-        instructionsMidPrev.addActionListener(this);
-        instructionsLastPrev.addActionListener(this);
-        done.addActionListener(this);
 
     }
 
@@ -113,70 +125,99 @@ public class Main extends JFrame implements ActionListener {
         menuPlay.addActionListener(this);
         menuHighScores.addActionListener(this);
         menuHowToPlay.addActionListener(this);
-        menuSettings.addActionListener(this);
+        //menuSettings.addActionListener(this);
 
-        menuPage.setLayout(new BoxLayout(menuPage,BoxLayout.Y_AXIS));
-        menuPage.add(Box.createVerticalGlue());
+        menuPage.setLayout(null);
+
+        menuPlay.setBounds(305 + (350 - menuPlayImage.getIconWidth()) / 2, 280, menuPlayImage.getIconWidth(), menuPlayImage.getIconHeight());
         menuPage.add(menuPlay);
-        menuPage.add(Box.createRigidArea(new Dimension(0,15)));
+
+        menuHighScores.setBounds(305 + (350 - menuHighScoresImage.getIconWidth()) / 2, 380, menuHighScoresImage.getIconWidth(), menuHighScoresImage.getIconHeight());
         menuPage.add(menuHighScores);
-        menuPage.add(Box.createRigidArea(new Dimension(0,15)));
+
+        menuHowToPlay.setBounds(305 + (350 - menuHowToPlayImage.getIconWidth()) / 2, 480, menuHowToPlayImage.getIconWidth(), menuHowToPlayImage.getIconHeight());
         menuPage.add(menuHowToPlay);
-        menuPage.add(Box.createRigidArea(new Dimension(0,15)));
-        menuPage.add(menuSettings);
-        menuPage.add(Box.createVerticalGlue());
 
-        menuPlay.setAlignmentX(CENTER_ALIGNMENT);
-        menuHighScores.setAlignmentX(CENTER_ALIGNMENT);
-        menuHowToPlay.setAlignmentX(CENTER_ALIGNMENT);
-        menuSettings.setAlignmentX(CENTER_ALIGNMENT);
+        //menuSettings.setBounds(305 + (350 - menuSettingsImage.getIconWidth()) / 2, 580, menuSettingsImage.getIconWidth(), menuSettingsImage.getIconHeight());
+        //menuPage.add(menuSettings);
 
-        menuPlay.setPreferredSize(new Dimension(40, 40));
-        menuHighScores.setPreferredSize(new Dimension(40, 40));
-        menuHowToPlay.setPreferredSize(new Dimension(40, 40));
-        menuSettings.setPreferredSize(new Dimension(40, 40));
     }
 
     public void highScore() {
         highScorePage.setLayout(null);
         home.addActionListener(this);
-        home.setBounds(430, 600, 100, 40);
+        home.setBounds(305 + (350 - homeImage.getIconWidth()) / 2, 600, homeImage.getIconWidth(), homeImage.getIconHeight());
         highScorePage.add(home);
 
     }
 
     public void howToPlay() {
+        howToPlay1.setLayout(null);
+        done.addActionListener(this);
+        done.setBounds(305 + (350 - doneImage.getIconWidth()) / 2, 680, doneImage.getIconWidth(), doneImage.getIconHeight());
+        howToPlay1.add(done);
 
+        rightArrow.addActionListener(this);
+        rightArrow.setBounds(550, 680, rightArrowImage.getIconWidth(), rightArrowImage.getIconHeight());
+        howToPlay1.add(rightArrow);
+
+        howToPlay2.setLayout(null);
+        done1.addActionListener(this);
+        done1.setBounds(305 + (350 - doneImage.getIconWidth()) / 2, 680, doneImage.getIconWidth(), doneImage.getIconHeight());
+        howToPlay2.add(done1);
+
+        leftArrow1.addActionListener(this);
+        leftArrow1.setBounds(360, 680, leftArrowImage.getIconWidth(), leftArrowImage.getIconHeight());
+        howToPlay2.add(leftArrow1);
+
+
+        rightArrow1.addActionListener(this);
+        rightArrow1.setBounds(550, 680, rightArrowImage.getIconWidth(), rightArrowImage.getIconHeight());
+        howToPlay2.add(rightArrow1);
+
+        howToPlay3.setLayout(null);
+        done2.addActionListener(this);
+        done2.setBounds(305 + (350 - doneImage.getIconWidth()) / 2, 680, doneImage.getIconWidth(), doneImage.getIconHeight());
+        howToPlay3.add(done2);
+
+        leftArrow.addActionListener(this);
+        leftArrow.setBounds(360, 680, leftArrowImage.getIconWidth(), leftArrowImage.getIconHeight());
+        howToPlay3.add(leftArrow);
     }
 
     public void settings() {
         settings.setLayout(null);
         home1.addActionListener(this);
-        home1.setBounds(430, 600, 100, 40);
+        home1.setBounds(305 + (350 - homeImage.getIconWidth()) / 2, 600, homeImage.getIconWidth(), homeImage.getIconHeight());
         settings.add(home1);
+
     }
 
 
     public void start(){
         myTimer.start();
+        name = "";
+        score = 0;
     }
 
     public void gameOver(int score)  {
+        gameOver.setLayout(null);
         cLayout.show(cards, "game over");
-        String name = "";
-        // TODO: textbox nickname
+        this.score = score;
 
-        try {
-            highScorePage.readFromFile("scores.txt");
-            highScorePage.addScore(name, score);
-            highScorePage.writeToFile("scores.txt");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        nickname = new JTextField();
+        nickname.addActionListener(this);
+        nickname.setBounds(315, 400, 325, 50);
+        nickname.setFont(new Font("Helvetica", Font.PLAIN, 36));
+        gameOver.add(nickname);
 
         System.out.println("Game Over!!!");
-        music.pause();
-        //lose.restart();
+        gameOver.setScore(score);
+
+
+        home2.addActionListener(this);
+        home2.setBounds(305 + (350 - homeImage.getIconWidth())/2, 600, homeImage.getIconWidth(), homeImage.getIconHeight());
+        gameOver.add(home2);
 
     }
 
@@ -203,14 +244,49 @@ public class Main extends JFrame implements ActionListener {
             cLayout.show(cards, "how to play 1");
         }
 
-        else if (source == menuSettings) {
+        /*else if (source == menuSettings) {
             cLayout.show(cards, "settings");
-        }
+        }*/
 
-        else if (source == home || source == home1) {
+        else if (source == home || source == home1 || source == done1 || source == done2 || source == done) {
             cLayout.show(cards,"menu");
         }
 
+        else if (source == rightArrow) {
+            cLayout.show(cards,"how to play 2");
+        }
+
+        else if (source == rightArrow1) {
+            cLayout.show(cards,"how to play 3");
+        }
+
+        else if (source == leftArrow1) {
+            cLayout.show(cards,"how to play 1");
+        }
+
+        else if (source == leftArrow) {
+            cLayout.show(cards,"how to play 2");
+        }
+
+        else if (source == home2) {
+            cLayout.show(cards,"menu");
+            name = nickname.getText();
+            System.out.println(name + " " + score);
+            try {
+                highScorePage.readFromFile("scores.txt");
+                highScorePage.addScore(name, score);
+                highScorePage.writeToFile("scores.txt");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            score = 0;
+            name = "";
+            nickname.setText("");
+        }
+
+        else if (source == nickname) {
+            name = nickname.getText();
+        }
 
         if (game != null) {
             game.move();
@@ -253,8 +329,8 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     private int score = 0;
     private int level = 1;
     private int lines = 0;
-    private Tile activeTile;
-    private Tile holdTile;
+    private Tile activeTile  = null;
+    private Tile holdTile = null;
     private ArrayList<Tile> queue = new ArrayList<>();
     private Board board;
     private int counter = 0;
@@ -271,8 +347,8 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     private int comboCount = 0;
     private boolean lastClearTetris = false;
 
-    private Point mouse;
-    private Point offset;
+    private Point mouse = null;
+    private Point offset = null;
     private Point oldMouse = new Point(0, 0);
     private boolean mouseControls = true;
 
@@ -377,13 +453,40 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     }
 
     public void init() {
+        speed = 0;
+        score = 0;
+        level = 1;
+        lines = 0;
+        activeTile = null;
+        holdTile = null;
+        board = new Board();
+        queue.clear();
+        counter = 0;
+        lastTile = 0;
+        swapped = false;
+        tileStopped = false;
+        stopTime = 0;
+        hardDropped = false;
+        fullRow = false;
+        rowTime = 0;
+        rows = new ArrayList<>();
+        comboCount = 0;
+        lastClearTetris = false;
+
+        mouse = null;
+        offset = null;
+        oldMouse = new Point(0, 0);
+        mouseControls = true;
+        counter = 0;
+
         started = true;
+
         activeTile = generateTile();
         for (int i = 0; i < 3; i++) {
             queue.add(generateTile());
         }
         board.addTile(activeTile);
-        Main.music.play();
+
     }
 
     public void move() {
