@@ -19,12 +19,16 @@ public class Menu extends JPanel {
 
     @Override
     public void paintComponent(Graphics g) {
+        drawBasicUI(g);
+        g.drawImage(tetrisLogo, 322, 40, null);
+    }
+
+    public void drawBasicUI(Graphics g) {
         g.drawImage(back,0,0,null);
         g.drawImage(hold, 60, 55, null);
         g.drawImage(scoreBoard, 60, 360, null);
         g.drawImage(nextTiles, 720, 55, null);
         g.drawImage(boardImage, 300, 20, null);
-        g.drawImage(tetrisLogo, 322, 40, null);
     }
 }
 
@@ -42,11 +46,7 @@ class HighScores extends Menu {
 
     @Override
     public void paintComponent(Graphics g) {
-        g.drawImage(back,0,0,null);
-        g.drawImage(hold, 60, 55, null);
-        g.drawImage(scoreBoard, 60, 360, null);
-        g.drawImage(nextTiles, 720, 55, null);
-        g.drawImage(boardImage, 300, 20, null);
+        drawBasicUI(g);
 
         if (g instanceof Graphics2D) {
             printScores(g);
@@ -62,7 +62,17 @@ class HighScores extends Menu {
             names.add(line[0]);
             scores.add(Integer.parseInt(line[1]));
         }
+        stdin.close();
     }
+
+    public void writeToFile(String file) throws IOException {
+        PrintWriter stdout = new PrintWriter(new BufferedWriter (new FileWriter (file)));
+        for (int i = 0; i < Math.min(10, scores.size()); i++) {
+            stdout.println(names.get(i) + "," + scores.get(i));
+        }
+        stdout.close();
+    }
+
 
     public void printScores(Graphics g) {
         Graphics2D g2 = (Graphics2D) g;
@@ -83,8 +93,17 @@ class HighScores extends Menu {
     }
 
     public void addScore(String name, int score) {
-
+        for (int i = 0; i < scores.size(); i++) {
+            if (score > scores.get(i)) {
+                scores.add(i, score);
+                names.add(i, name);
+                break;
+            }
+        }
     }
+
+
+
 }
 
 class GameOver extends Menu {
@@ -96,11 +115,7 @@ class GameOver extends Menu {
 
     @Override
     public void paintComponent(Graphics g) {
-        g.drawImage(back,0,0,null);
-        g.drawImage(hold, 60, 55, null);
-        g.drawImage(scoreBoard, 60, 360, null);
-        g.drawImage(nextTiles, 720, 55, null);
-        g.drawImage(boardImage, 300, 20, null);
+        drawBasicUI(g);
 
         if (g instanceof Graphics2D) {
             Graphics2D g2 = (Graphics2D) g;
@@ -146,5 +161,18 @@ class HowToPlay extends Menu {
     public void paintComponent(Graphics g) {
         g.drawImage(image, 0, 0, null);
 
+    }
+}
+
+class Settings extends Menu {
+    @Override
+    public void addNotify() {
+        super.addNotify();
+        requestFocus();
+    }
+
+    @Override
+    public void paintComponent(Graphics g) {
+        drawBasicUI(g);
     }
 }

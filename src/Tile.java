@@ -11,6 +11,8 @@ public class Tile {
     private Image image;
     private final int[][] defaultTile;
     public static final int[] sizes = { 0, 4, 3, 3, 2, 3, 3, 3 };
+    public static final int RIGHT = 1;
+    public static final int LEFT = 2;
     public static final Image[] images = {
         null,
         new ImageIcon("Assets/CyanBlock.png").getImage(),
@@ -21,6 +23,7 @@ public class Tile {
         new ImageIcon("Assets/PurpleBlock.png").getImage(),
         new ImageIcon("Assets/RedBlock.png").getImage(),
     };
+
 
     private final int[][][] defaultTiles = {
         null,
@@ -75,39 +78,77 @@ public class Tile {
     };
 
 
-    public void rotate() {
-        orientation = (orientation + 1) % 4;
-        int[][] temp = {{0,0,0,0},
-            {0,0,0,0},
-            {0,0,0,0},
-            {0,0,0,0}};
+    public void rotate(int dir) {
+        if (dir == RIGHT) {
+            orientation = (orientation + 1) % 4;
+            int[][] temp = {{0,0,0,0},
+                {0,0,0,0},
+                {0,0,0,0},
+                {0,0,0,0}};
 
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                temp[j][size-1-i] = tile[i][j];
+            for (int i = 0; i < size; i++) {
+                for (int j = 0; j < size; j++) {
+                    temp[j][size-1-i] = tile[i][j];
+                }
+            }
+
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+                    tile[i][j] = temp[i][j];
+                }
+            }
+        }
+        else {
+            orientation = (orientation + 4 - 1) % 4;
+            int[][] temp = {{0,0,0,0},
+                {0,0,0,0},
+                {0,0,0,0},
+                {0,0,0,0}};
+
+            for (int i = 0; i < size; i++) {
+                for (int j = 0; j < size; j++) {
+                    temp[size-1-j][i] = tile[i][j];
+                }
+            }
+
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+                    tile[i][j] = temp[i][j];
+                }
             }
         }
 
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
-                tile[i][j] = temp[i][j];
-            }
-        }
     }
 
-    public static int[][] rotated(Tile tile) {
-        int[][] temp = {{0,0,0,0},
-            {0,0,0,0},
-            {0,0,0,0},
-            {0,0,0,0}};
+    public static int[][] rotated(Tile tile, int dir) {
+        if (dir == RIGHT) {
+            int[][] temp = {{0,0,0,0},
+                {0,0,0,0},
+                {0,0,0,0},
+                {0,0,0,0}};
 
-        for (int i = 0; i < tile.size; i++) {
-            for (int j = 0; j < tile.size; j++) {
-                temp[j][tile.size-1-i] = tile.tile[i][j];
+            for (int i = 0; i < tile.size; i++) {
+                for (int j = 0; j < tile.size; j++) {
+                    ;
+                }
             }
-        }
 
-        return temp;
+            return temp;
+        }
+        else {
+            int[][] temp = {{0,0,0,0},
+                {0,0,0,0},
+                {0,0,0,0},
+                {0,0,0,0}};
+
+            for (int i = 0; i < tile.size; i++) {
+                for (int j = 0; j < tile.size; j++) {
+                    temp[tile.size-1-j][i] = tile.tile[i][j];
+                }
+            }
+
+            return temp;
+        }
     }
 
     public void resetToDefault() {
@@ -133,7 +174,7 @@ public class Tile {
         size = sizes[Math.abs(id)];
         image = images[Math.abs(id)];
         for (int i = 0; i < orientation; i++) {
-            this.rotate();
+            this.rotate(RIGHT);
         }
     }
 

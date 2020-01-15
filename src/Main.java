@@ -19,8 +19,13 @@ public class Main extends JFrame implements ActionListener {
     JButton instructionsMidNext = new JButton ("NEXT");
     JButton instructionsMidPrev = new JButton ("BACK");
     JButton instructionsLastPrev = new JButton ("BACK");
-    JButton done = new JButton("DONE");
     JButton home = new JButton("HOME");
+    JButton home1 = new JButton("HOME");
+    JButton done = new JButton("DONE");
+    JButton done1 = new JButton("DONE");
+    JButton done2 = new JButton("DONE");
+
+
 
     Menu menuPage;
     HighScores highScorePage;
@@ -28,6 +33,7 @@ public class Main extends JFrame implements ActionListener {
     HowToPlay howToPlay1;
     HowToPlay howToPlay2;
     HowToPlay howToPlay3;
+    Settings settings;
 
     public static void main(String[] args) {
         Main frame = new Main();
@@ -54,7 +60,6 @@ public class Main extends JFrame implements ActionListener {
         cards.add(highScorePage,"high score");
 
         // Instructions
-
         howToPlay1 = new HowToPlay(1);
         cards.add(howToPlay1,"how to play 1");
         howToPlay2 = new HowToPlay(2);
@@ -62,6 +67,11 @@ public class Main extends JFrame implements ActionListener {
         howToPlay3 = new HowToPlay(3);
         cards.add(howToPlay3,"how to play 3");
         howToPlay();
+
+        // Settings
+        settings = new Settings();
+        cards.add(settings, "settings");
+        settings();
 
         // GamePanel
         game = new GamePanel(this);
@@ -122,7 +132,7 @@ public class Main extends JFrame implements ActionListener {
     public void highScore() {
         highScorePage.setLayout(null);
         home.addActionListener(this);
-        home.setBounds(315, 600, 100, 40);
+        home.setBounds(430, 600, 100, 40);
         highScorePage.add(home);
 
     }
@@ -131,17 +141,33 @@ public class Main extends JFrame implements ActionListener {
 
     }
 
+    public void settings() {
+        settings.setLayout(null);
+        home1.addActionListener(this);
+        home1.setBounds(430, 600, 100, 40);
+        settings.add(home1);
+    }
+
 
     public void start(){
         myTimer.start();
     }
 
-    public void gameOver(int score) {
+    public void gameOver(int score)  {
         cLayout.show(cards, "game over");
         String name = "";
-        highScorePage.addScore(name, score);
+        // TODO: textbox nickname
+
+        try {
+            highScorePage.readFromFile("scores.txt");
+            highScorePage.addScore(name, score);
+            highScorePage.writeToFile("scores.txt");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         System.out.println("Game Over!!!");
-        //System.exit(0);
+
     }
 
     public void actionPerformed(ActionEvent evt){
@@ -154,7 +180,7 @@ public class Main extends JFrame implements ActionListener {
             game.init();
         }
 
-        if (source == menuHighScores) {
+        else if (source == menuHighScores) {
             try {
                 highScorePage.readFromFile("scores.txt");
             } catch (IOException e) {
@@ -163,13 +189,18 @@ public class Main extends JFrame implements ActionListener {
             cLayout.show(cards,"high score");
         }
 
-        if (source == menuHowToPlay) {
+        else if (source == menuHowToPlay) {
             cLayout.show(cards, "how to play 1");
         }
 
-        if (source == home) {
+        else if (source == menuSettings) {
+            cLayout.show(cards, "settings");
+        }
+
+        else if (source == home || source == home1) {
             cLayout.show(cards,"menu");
         }
+
 
         if (game != null) {
             game.move();
@@ -196,7 +227,7 @@ public class Main extends JFrame implements ActionListener {
     }
 }
 
-class GamePanel extends JPanel implements KeyListener {
+class GamePanel extends JPanel implements KeyListener, MouseListener {
     private boolean started = false;
     private boolean[] keys;
     private boolean[] keysDown;
@@ -230,6 +261,11 @@ class GamePanel extends JPanel implements KeyListener {
     private int comboCount = 0;
     private boolean lastClearTetris = false;
 
+    private Point mouse;
+    private Point offset;
+    private Point oldMouse = new Point(0, 0);
+    private boolean mouseControls = true;
+
     public GamePanel(Main m) {
         keys = new boolean[KeyEvent.KEY_LAST+1];
         keysDown = new boolean[KeyEvent.KEY_LAST+1];
@@ -242,6 +278,7 @@ class GamePanel extends JPanel implements KeyListener {
         mainFrame = m;
         setSize(1000, 770);
         addKeyListener(this);
+        addMouseListener(this);
 
         board = new Board();
 
@@ -258,6 +295,40 @@ class GamePanel extends JPanel implements KeyListener {
         requestFocus();
     }
 
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        mouseControls = true;
+        if (e.getButton() == MouseEvent.BUTTON1) {
+            int travelled = board.hardDrop(activeTile);
+            score += travelled * 2;
+            hardDropped = true;
+        }
+        else if (e.getButton() == MouseEvent.BUTTON3 && !swapped) {
+            hold();
+        }
+
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+
+    }
+
     public void keyTyped(KeyEvent e) {}
 
     public void keyPressed(KeyEvent e) {
@@ -265,7 +336,7 @@ class GamePanel extends JPanel implements KeyListener {
 
         if (keys[KeyEvent.VK_UP] && !keysDown[KeyEvent.VK_UP]) {
             keysDown[KeyEvent.VK_UP] = true;
-            board.rotate(activeTile);
+            board.rotate(activeTile, Tile.RIGHT);
         }
 
         if (keys[KeyEvent.VK_SPACE] && !keysDown[KeyEvent.VK_SPACE]) {
@@ -277,6 +348,10 @@ class GamePanel extends JPanel implements KeyListener {
 
         if (keys[KeyEvent.VK_C] && !keysDown[KeyEvent.VK_C] && !swapped) {
             hold();
+        }
+
+        if (keys[KeyEvent.VK_Z] && !keysDown[KeyEvent.VK_Z]) {
+            board.rotate(activeTile, Tile.LEFT);
         }
     }
 
@@ -302,9 +377,13 @@ class GamePanel extends JPanel implements KeyListener {
 
     public void move() {
         if (started) {
-            Point mouse = MouseInfo.getPointerInfo().getLocation();
-            Point offset = getLocationOnScreen();
-            System.out.println("("+(mouse.x-offset.x)+", "+(mouse.y-offset.y)+")");
+            mouse = MouseInfo.getPointerInfo().getLocation();
+            offset = getLocationOnScreen();
+            mouseControls = !(mouse.x == oldMouse.x && mouse.y == oldMouse.y);
+            oldMouse.x = mouse.x;
+            oldMouse.y = mouse.y;
+            //System.out.println("("+(mouse.x-offset.x)+", "+(mouse.y-offset.y)+")");
+
             moveTile();
             counter++;
         }
@@ -314,8 +393,21 @@ class GamePanel extends JPanel implements KeyListener {
         speed = speedCurve[level];
         rows = board.getFullRows();
 
+
+        if (mouseControls) {
+            int pos = (mouse.x - offset.x - 302) / 35;
+            while (board.canShiftRight(activeTile) && board.getTileX() < pos) {
+                board.shiftRight(activeTile);
+            }
+
+            while (board.canShiftLeft(activeTile) && board.getTileX() > pos) {
+                board.shiftLeft(activeTile);
+            }
+        }
+
         if (keys[KeyEvent.VK_DOWN]) {
             speed = CONTROL_DOWN_SPEED;
+            mouseControls = false;
         }
 
         if (keys[KeyEvent.VK_RIGHT] && counter % CONTROL_SIDE_SPEED == 0) {
@@ -553,4 +645,5 @@ class GamePanel extends JPanel implements KeyListener {
         drawUI(g);
         drawTiles(g);
     }
+
 }
