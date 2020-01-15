@@ -153,12 +153,21 @@ public class Main extends JFrame implements ActionListener {
         myTimer.start();
     }
 
-    public void gameOver(int score) {
+    public void gameOver(int score)  {
         cLayout.show(cards, "game over");
         String name = "";
-        highScorePage.addScore(name, score);
+        // TODO: textbox nickname
+
+        try {
+            highScorePage.readFromFile("scores.txt");
+            highScorePage.addScore(name, score);
+            highScorePage.writeToFile("scores.txt");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         System.out.println("Game Over!!!");
-        //System.exit(0);
+
     }
 
     public void actionPerformed(ActionEvent evt){
@@ -387,8 +396,6 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
         if (mouseControls) {
             int pos = (mouse.x - offset.x - 302) / 35;
-            pos = Math.max(0, pos);
-            pos = Math.min(10, pos);
             while (board.canShiftRight(activeTile) && board.getTileX() < pos) {
                 board.shiftRight(activeTile);
             }

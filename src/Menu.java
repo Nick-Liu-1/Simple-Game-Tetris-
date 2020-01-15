@@ -62,7 +62,17 @@ class HighScores extends Menu {
             names.add(line[0]);
             scores.add(Integer.parseInt(line[1]));
         }
+        stdin.close();
     }
+
+    public void writeToFile(String file) throws IOException {
+        PrintWriter stdout = new PrintWriter(new BufferedWriter (new FileWriter (file)));
+        for (int i = 0; i < Math.min(10, scores.size()); i++) {
+            stdout.println(names.get(i) + "," + scores.get(i));
+        }
+        stdout.close();
+    }
+
 
     public void printScores(Graphics g) {
         Graphics2D g2 = (Graphics2D) g;
@@ -83,8 +93,17 @@ class HighScores extends Menu {
     }
 
     public void addScore(String name, int score) {
-
+        for (int i = 0; i < scores.size(); i++) {
+            if (score > scores.get(i)) {
+                scores.add(i, score);
+                names.add(i, name);
+                break;
+            }
+        }
     }
+
+
+
 }
 
 class GameOver extends Menu {
