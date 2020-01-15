@@ -1,75 +1,68 @@
 import java.awt.event.*;
-import java.io.IOException;
+import java.io.*;
+import java.net.MalformedURLException;
 import java.util.*;
 import java.awt.*;
 import javax.swing.*;
-import javax.sound.sampled.*;
+import java.applet.*;
 
 public class Main extends JFrame implements ActionListener {
-    javax.swing.Timer myTimer;
-    GamePanel game;
+    private javax.swing.Timer myTimer;
+    private GamePanel game;
 
-    JPanel cards;
-    CardLayout cLayout = new CardLayout();
+    private JPanel cards;
+    private CardLayout cLayout = new CardLayout();
 
     // Buttons
-    ImageIcon menuPlayImage = new ImageIcon("Buttons/play.png");
-    JButton menuPlay = new JButton(menuPlayImage);
+    private ImageIcon menuPlayImage = new ImageIcon("Buttons/play.png");
+    private JButton menuPlay = new JButton(menuPlayImage);
 
-    ImageIcon menuHighScoresImage = new ImageIcon("Buttons/highScores.png");
+    private ImageIcon menuHighScoresImage = new ImageIcon("Buttons/highScores.png");
     JButton menuHighScores = new JButton (menuHighScoresImage);
 
-    ImageIcon menuHowToPlayImage = new ImageIcon("Buttons/howtoplay.png");
+    private ImageIcon menuHowToPlayImage = new ImageIcon("Buttons/howtoplay.png");
     JButton menuHowToPlay = new JButton (menuHowToPlayImage);
 
-    //ImageIcon menuSettingsImage = new ImageIcon("Buttons/options.png");
-    //JButton menuSettings = new JButton (menuSettingsImage);
+    private ImageIcon homeImage = new ImageIcon("Buttons/home.png");
+    private JButton home = new JButton(homeImage);
+    private JButton home1 = new JButton(homeImage);
+    private JButton home2 = new JButton(homeImage);
 
-    ImageIcon homeImage = new ImageIcon("Buttons/home.png");
-    JButton home = new JButton(homeImage);
-    JButton home1 = new JButton(homeImage);
-    JButton home2 = new JButton(homeImage);
+    private ImageIcon doneImage = new ImageIcon("Buttons/done.png");
+    private JButton done = new JButton(doneImage);
+    private JButton done1 = new JButton(doneImage);
+    private JButton done2 = new JButton(doneImage);
 
-    ImageIcon doneImage = new ImageIcon("Buttons/done.png");
-    JButton done = new JButton(doneImage);
-    JButton done1 = new JButton(doneImage);
-    JButton done2 = new JButton(doneImage);
+    private ImageIcon leftArrowImage = new ImageIcon("Buttons/prev.png");
+    private JButton leftArrow = new JButton(leftArrowImage);
+    private JButton leftArrow1 = new JButton(leftArrowImage);
 
-    ImageIcon leftArrowImage = new ImageIcon("Buttons/prev.png");
-    JButton leftArrow = new JButton(leftArrowImage);
-    JButton leftArrow1 = new JButton(leftArrowImage);
-
-    ImageIcon rightArrowImage = new ImageIcon("Buttons/prevClick.png");
-    JButton rightArrow = new JButton(rightArrowImage);
-    JButton rightArrow1 = new JButton(rightArrowImage);
+    private ImageIcon rightArrowImage = new ImageIcon("Buttons/prevClick.png");
+    private JButton rightArrow = new JButton(rightArrowImage);
+    private JButton rightArrow1 = new JButton(rightArrowImage);
 
 
-    JTextField nickname;
-    String name = "";
-    int score = 0;
+    private JTextField nickname;
+    private String name = "";
+    private int score = 0;
 
     // Pages
-    Menu menuPage;
-    HighScores highScorePage;
-    GameOver gameOver;
-    HowToPlay howToPlay1;
-    HowToPlay howToPlay2;
-    HowToPlay howToPlay3;
-    Settings settings;
-
-    // Sounds
+    private Menu menuPage;
+    private HighScores highScorePage;
+    private GameOver gameOver;
+    private HowToPlay howToPlay1;
+    private HowToPlay howToPlay2;
+    private HowToPlay howToPlay3;
 
 
-    public static void main(String[] args) throws UnsupportedAudioFileException, IOException, LineUnavailableException {
+    public static void main(String[] args) {
         Main frame = new Main();
     }
 
-    public Main() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
+    public Main() {
         super("Tetris");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1000,770);
-
-        addButtons();
 
         // Cards
         cards = new JPanel(cLayout);
@@ -93,11 +86,6 @@ public class Main extends JFrame implements ActionListener {
         cards.add(howToPlay3,"how to play 3");
         howToPlay();
 
-        // Settings
-        //settings = new Settings();
-        //cards.add(settings, "settings");
-        //settings();
-
         // GamePanel
         game = new GamePanel(this);
         cards.add(game,"game");
@@ -105,7 +93,6 @@ public class Main extends JFrame implements ActionListener {
         // GameOver
         gameOver = new GameOver();
         cards.add(gameOver, "game over");
-
 
         add(cards);
 
@@ -116,16 +103,11 @@ public class Main extends JFrame implements ActionListener {
 
     }
 
-    public void addButtons() {
-
-    }
-
     public void menu() {
         // Buttons
         menuPlay.addActionListener(this);
         menuHighScores.addActionListener(this);
         menuHowToPlay.addActionListener(this);
-        //menuSettings.addActionListener(this);
 
         menuPage.setLayout(null);
 
@@ -137,10 +119,6 @@ public class Main extends JFrame implements ActionListener {
 
         menuHowToPlay.setBounds(305 + (350 - menuHowToPlayImage.getIconWidth()) / 2, 480, menuHowToPlayImage.getIconWidth(), menuHowToPlayImage.getIconHeight());
         menuPage.add(menuHowToPlay);
-
-        //menuSettings.setBounds(305 + (350 - menuSettingsImage.getIconWidth()) / 2, 580, menuSettingsImage.getIconWidth(), menuSettingsImage.getIconHeight());
-        //menuPage.add(menuSettings);
-
     }
 
     public void highScore() {
@@ -185,15 +163,6 @@ public class Main extends JFrame implements ActionListener {
         howToPlay3.add(leftArrow);
     }
 
-    public void settings() {
-        settings.setLayout(null);
-        home1.addActionListener(this);
-        home1.setBounds(305 + (350 - homeImage.getIconWidth()) / 2, 600, homeImage.getIconWidth(), homeImage.getIconHeight());
-        settings.add(home1);
-
-    }
-
-
     public void start(){
         myTimer.start();
         name = "";
@@ -207,7 +176,7 @@ public class Main extends JFrame implements ActionListener {
 
         nickname = new JTextField();
         nickname.addActionListener(this);
-        nickname.setBounds(315, 400, 325, 50);
+        nickname.setBounds(318, 400, 325, 50);
         nickname.setFont(new Font("Helvetica", Font.PLAIN, 36));
         gameOver.add(nickname);
 
@@ -243,10 +212,6 @@ public class Main extends JFrame implements ActionListener {
         else if (source == menuHowToPlay) {
             cLayout.show(cards, "how to play 1");
         }
-
-        /*else if (source == menuSettings) {
-            cLayout.show(cards, "settings");
-        }*/
 
         else if (source == home || source == home1 || source == done1 || source == done2 || source == done) {
             cLayout.show(cards,"menu");
@@ -325,32 +290,51 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     private Image boardImage;
 
     private final int[] speedCurve = { 0, 60, 48, 37, 28, 21, 16, 11, 8, 6, 4, 3, 2 };
-    private int speed = 0;
-    private int score = 0;
-    private int level = 1;
-    private int lines = 0;
-    private Tile activeTile  = null;
-    private Tile holdTile = null;
+    private int speed;
+    private int score;
+    private int level;
+    private int lines;
+    private Tile activeTile;
+    private Tile holdTile;
     private ArrayList<Tile> queue = new ArrayList<>();
     private Board board;
-    private int counter = 0;
+    private int counter;
     public final int CONTROL_DOWN_SPEED = 4;
     public final int CONTROL_SIDE_SPEED = 8;
-    private int lastTile = 0;
-    private boolean swapped = false;
-    private boolean tileStopped = false;
-    private int stopTime = 0;
-    private boolean hardDropped = false;
-    private boolean fullRow = false;
-    private int rowTime = 0;
+    private int lastTile;
+    private boolean swapped;
+    private boolean tileStopped;
+    private int stopTime;
+    private boolean hardDropped;
+    private boolean fullRow;
+    private int rowTime;
     private ArrayList<Integer> rows;
-    private int comboCount = 0;
-    private boolean lastClearTetris = false;
+    private int comboCount;
+    private boolean lastClearTetris;
 
-    private Point mouse = null;
-    private Point offset = null;
-    private Point oldMouse = new Point(0, 0);
+    private Point mouse;
+    private Point offset;
+    private Point oldMouse;
     private boolean mouseControls = true;
+
+    // Sounds
+    public final File dropTileSound = new File("Assets/dropTile.wav");
+    public final File lineDropSound = new File("Assets/lineDrop.wav");
+    public final File rotateTileSound = new File("Assets/rotateTile.wav");
+    public final File loseSound = new File("Assets/lose.wav");
+    public final File theme = new File("Assets/Theme.wav");
+
+    AudioClip sound;
+    AudioClip music;
+
+    {
+        try {
+            music = Applet.newAudioClip(theme.toURL());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     public GamePanel(Main m) {
         keys = new boolean[KeyEvent.KEY_LAST+1];
@@ -388,6 +372,14 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             int travelled = board.hardDrop(activeTile);
             score += travelled * 2;
             hardDropped = true;
+            System.out.println("Test");
+            try {
+                sound = Applet.newAudioClip(dropTileSound.toURL());
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+
+            sound.play();
         }
         else if (e.getButton() == MouseEvent.BUTTON3 && !swapped) {
             hold();
@@ -423,6 +415,13 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         if (keys[KeyEvent.VK_UP] && !keysDown[KeyEvent.VK_UP]) {
             keysDown[KeyEvent.VK_UP] = true;
             board.rotate(activeTile, Tile.RIGHT);
+            try {
+                sound = Applet.newAudioClip(rotateTileSound.toURL());
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+
+            sound.play();
         }
 
         if (keys[KeyEvent.VK_SPACE] && !keysDown[KeyEvent.VK_SPACE]) {
@@ -430,6 +429,13 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             int travelled = board.hardDrop(activeTile);
             score += travelled * 2;
             hardDropped = true;
+            try {
+                sound = Applet.newAudioClip(dropTileSound.toURL());
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+
+            sound.play();
         }
 
         if (keys[KeyEvent.VK_C] && !keysDown[KeyEvent.VK_C] && !swapped) {
@@ -438,6 +444,13 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
         if (keys[KeyEvent.VK_Z] && !keysDown[KeyEvent.VK_Z]) {
             board.rotate(activeTile, Tile.LEFT);
+            try {
+                sound = Applet.newAudioClip(rotateTileSound.toURL());
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+
+            sound.play();
         }
     }
 
@@ -480,6 +493,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         counter = 0;
 
         started = true;
+        music.loop();
 
         activeTile = generateTile();
         for (int i = 0; i < 3; i++) {
@@ -570,7 +584,13 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 rowTime = counter;
                 tileStopped = false;
                 comboCount++;
-                //Main.lineDrop.restart();
+                try {
+                    sound = Applet.newAudioClip(lineDropSound.toURL());
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+
+                sound.play();
             }
             else {
                 comboCount = 0;
@@ -625,6 +645,14 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         if (!canAddTile) {
             mainFrame.gameOver(score);
             started = false;
+            try {
+                sound = Applet.newAudioClip(loseSound.toURL());
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+
+            sound.play();
+            music.stop();
             return;
         }
 
