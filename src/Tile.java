@@ -129,7 +129,7 @@ public class Tile {
 
             for (int i = 0; i < tile.size; i++) {
                 for (int j = 0; j < tile.size; j++) {
-                    ;
+                    temp[j][tile.size-1-i] = tile.tile[i][j];
                 }
             }
 

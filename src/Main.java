@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.util.*;
 import java.awt.*;
 import javax.swing.*;
+import javax.sound.sampled.*;
 
 public class Main extends JFrame implements ActionListener {
     javax.swing.Timer myTimer;
@@ -11,6 +12,7 @@ public class Main extends JFrame implements ActionListener {
     JPanel cards;
     CardLayout cLayout = new CardLayout();
 
+    // Buttons
     JButton menuPlay = new JButton ("PLAY");
     JButton menuHighScores = new JButton ("HIGH SCORES");
     JButton menuHowToPlay = new JButton ("HOW TO PLAY");
@@ -25,8 +27,7 @@ public class Main extends JFrame implements ActionListener {
     JButton done1 = new JButton("DONE");
     JButton done2 = new JButton("DONE");
 
-
-
+    // Pages
     Menu menuPage;
     HighScores highScorePage;
     GameOver gameOver;
@@ -35,11 +36,18 @@ public class Main extends JFrame implements ActionListener {
     HowToPlay howToPlay3;
     Settings settings;
 
-    public static void main(String[] args) {
+    // Sounds
+    public static final AudioPlayer music = new AudioPlayer("Assets/Theme.wav", true);
+    public static final AudioPlayer dropTile = new AudioPlayer("Assets/dropTile.wav", false);
+    public static final AudioPlayer lineDrop = new AudioPlayer("Assets/lineDrop.wav", false);
+    public static final AudioPlayer lose = new AudioPlayer("Assets/lose.wav", false);
+    public static final AudioPlayer rotateTile = new AudioPlayer("Assets/rotateTile.wav", false);
+
+    public static void main(String[] args) throws UnsupportedAudioFileException, IOException, LineUnavailableException {
         Main frame = new Main();
     }
 
-    public Main() {
+    public Main() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
         super("Tetris");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1000,770);
@@ -167,6 +175,8 @@ public class Main extends JFrame implements ActionListener {
         }
 
         System.out.println("Game Over!!!");
+        music.pause();
+        //lose.restart();
 
     }
 
@@ -373,6 +383,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             queue.add(generateTile());
         }
         board.addTile(activeTile);
+        Main.music.play();
     }
 
     public void move() {
@@ -383,7 +394,6 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             oldMouse.x = mouse.x;
             oldMouse.y = mouse.y;
             //System.out.println("("+(mouse.x-offset.x)+", "+(mouse.y-offset.y)+")");
-
             moveTile();
             counter++;
         }
@@ -457,6 +467,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 rowTime = counter;
                 tileStopped = false;
                 comboCount++;
+                //Main.lineDrop.restart();
             }
             else {
                 comboCount = 0;

@@ -145,7 +145,11 @@ public class Board {
             }
         }
 
-        if (valid)  { tile.rotate(dir); }
+        if (valid)  {
+            tile.rotate(dir);
+            //Main.rotateTile.restart();
+            System.out.println(123);
+        }
 
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
@@ -162,6 +166,7 @@ public class Board {
             shiftDown(tile);
             count ++;
         }
+        //Main.dropTile.restart();
         return count;
     }
 
