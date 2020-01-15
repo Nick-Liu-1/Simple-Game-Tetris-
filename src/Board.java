@@ -128,7 +128,7 @@ public class Board {
         tileX++;
     }
 
-    public void rotate(Tile tile) {
+    public void rotate(Tile tile, int dir) {
         boolean valid = true;
 
         for (int i = 0; i < 4; i++) {
@@ -136,7 +136,7 @@ public class Board {
                 if (tileX + i < 10 && tileY + j < 22 && tile.getTile()[i][j] != 0) {
                     board[tileX + i][tileY + j] = 0;
                 }
-                if (Tile.rotated(tile)[i][j] != 0) {
+                if (Tile.rotated(tile, dir)[i][j] != 0) {
                     if (tileX + i < 0 || tileX + i >= 10 || tileY + j >= 22 || board[tileX+i][tileY+j] > 0) {
                         valid = false;
 
@@ -145,7 +145,7 @@ public class Board {
             }
         }
 
-        if (valid)  { tile.rotate(); }
+        if (valid)  { tile.rotate(dir); }
 
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
