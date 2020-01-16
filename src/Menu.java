@@ -4,12 +4,12 @@ import java.util.*;
 import java.io.*;
 
 public class Menu extends JPanel {
-    final Image back = new ImageIcon("Assets/background.jpg").getImage();
-    final Image hold = new ImageIcon("Assets/holdBox.PNG").getImage();
-    final Image scoreBoard = new ImageIcon("Assets/scoreBox.PNG").getImage();
-    final Image nextTiles = new ImageIcon("Assets/nextBox.PNG").getImage();
-    final Image boardImage = new ImageIcon("Assets/menucentre.jpg").getImage();
-    final Image tetrisLogo = new ImageIcon("Assets/logo.PNG").getImage();
+    private final Image back = new ImageIcon("Assets/background.jpg").getImage();
+    private final Image hold = new ImageIcon("Assets/holdBox.PNG").getImage();
+    private final Image scoreBoard = new ImageIcon("Assets/scoreBox.PNG").getImage();
+    private final Image nextTiles = new ImageIcon("Assets/nextBox.PNG").getImage();
+    private final Image boardImage = new ImageIcon("Assets/menucentre.jpg").getImage();
+    private final Image tetrisLogo = new ImageIcon("Assets/logo.PNG").getImage();
 
     @Override
     public void addNotify() {
@@ -63,13 +63,18 @@ class HighScores extends Menu {
             names.add(line[0]);
             scores.add(Integer.parseInt(line[1]));
         }
+
         stdin.close();
     }
 
     public void writeToFile(String file) throws IOException {
         PrintWriter stdout = new PrintWriter(new BufferedWriter (new FileWriter (file)));
         for (int i = 0; i < Math.min(10, scores.size()); i++) {
-            stdout.println(names.get(i) + "," + scores.get(i));
+            String s = names.get(i);
+            if (s.length() > 12) {
+                s = s.substring(0, 12);
+            }
+            stdout.println(s + "," + scores.get(i));
         }
         stdout.close();
     }
@@ -98,8 +103,12 @@ class HighScores extends Menu {
             if (score > scores.get(i)) {
                 scores.add(i, score);
                 names.add(i, name);
-                break;
+                return;
             }
+        }
+        if (scores.size() < 10) {
+            scores.add(score);
+            names.add(name);
         }
     }
 

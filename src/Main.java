@@ -7,44 +7,53 @@ import javax.swing.*;
 import java.applet.*;
 
 public class Main extends JFrame implements ActionListener {
-    private javax.swing.Timer myTimer;
-    private GamePanel game;
+    private javax.swing.Timer myTimer;  // Game Timer
+    private GamePanel game;  // GamePanel for the actual game
 
+    // Cards for switching between pages of menu
     private JPanel cards;
     private CardLayout cLayout = new CardLayout();
 
     // Buttons
+
+    // Play button and images
     private ImageIcon menuPlayImage = new ImageIcon("Buttons/play.png");
     private JButton menuPlay = new JButton(menuPlayImage);
 
+    // High scores button
     private ImageIcon menuHighScoresImage = new ImageIcon("Buttons/highScores.png");
     JButton menuHighScores = new JButton (menuHighScoresImage);
 
+    // How to play button
     private ImageIcon menuHowToPlayImage = new ImageIcon("Buttons/howtoplay.png");
     JButton menuHowToPlay = new JButton (menuHowToPlayImage);
 
+    // All of the home buttons that return you to main menu
     private ImageIcon homeImage = new ImageIcon("Buttons/home.png");
     private JButton home = new JButton(homeImage);
     private JButton home1 = new JButton(homeImage);
     private JButton home2 = new JButton(homeImage);
 
+    // All the done buttons that return you to main menu
     private ImageIcon doneImage = new ImageIcon("Buttons/done.png");
     private JButton done = new JButton(doneImage);
     private JButton done1 = new JButton(doneImage);
     private JButton done2 = new JButton(doneImage);
 
+    // Left arrow buttons for how to play menu
     private ImageIcon leftArrowImage = new ImageIcon("Buttons/prev.png");
     private JButton leftArrow = new JButton(leftArrowImage);
     private JButton leftArrow1 = new JButton(leftArrowImage);
 
+    // Right arrow buttons for how to play menu
     private ImageIcon rightArrowImage = new ImageIcon("Buttons/prevClick.png");
     private JButton rightArrow = new JButton(rightArrowImage);
     private JButton rightArrow1 = new JButton(rightArrowImage);
 
-
-    private JTextField nickname;
-    private String name = "";
-    private int score = 0;
+    // Nickname entry on game over screen
+    private JTextField nickname = new JTextField();  // Text field for user to enter their nickname
+    private String name = "";  // Name inputted
+    private int score = 0;  // User's score
 
     // Pages
     private Menu menuPage;
@@ -56,10 +65,12 @@ public class Main extends JFrame implements ActionListener {
 
 
     public static void main(String[] args) {
+        // Creating the frame
         Main frame = new Main();
     }
 
     public Main() {
+        // Creating frame
         super("Tetris");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1000,770);
@@ -67,24 +78,24 @@ public class Main extends JFrame implements ActionListener {
         // Cards
         cards = new JPanel(cLayout);
 
-        // Menu
+        // Main menu
         menuPage = new Menu();
-        menu();
+        menuInit();
         cards.add(menuPage, "menu");
 
-        // High Score
+        // High Score page
         highScorePage = new HighScores();
-        highScore();
+        highScoreInit();
         cards.add(highScorePage,"high score");
 
-        // Instructions
+        // Instructions page. Creating and adding all 3 pages.
         howToPlay1 = new HowToPlay(1);
         cards.add(howToPlay1,"how to play 1");
         howToPlay2 = new HowToPlay(2);
         cards.add(howToPlay2,"how to play 2");
         howToPlay3 = new HowToPlay(3);
         cards.add(howToPlay3,"how to play 3");
-        howToPlay();
+        howToPlayInit();
 
         // GamePanel
         game = new GamePanel(this);
@@ -94,7 +105,7 @@ public class Main extends JFrame implements ActionListener {
         gameOver = new GameOver();
         cards.add(gameOver, "game over");
 
-        add(cards);
+        add(cards); // Add cards to frame
 
         myTimer = new javax.swing.Timer(10, new TickListener());
 
@@ -103,87 +114,127 @@ public class Main extends JFrame implements ActionListener {
 
     }
 
-    public void menu() {
-        // Buttons
+    public void menuInit() {
+        /*
+            Creates all of the buttons for the main menu. Adds their action listeners, sets their position and sizes,
+            and adds them to the menuPage.
+         */
+
+        // Adding action listeners to buttons
         menuPlay.addActionListener(this);
         menuHighScores.addActionListener(this);
         menuHowToPlay.addActionListener(this);
 
         menuPage.setLayout(null);
 
+        // Play button
         menuPlay.setBounds(305 + (350 - menuPlayImage.getIconWidth()) / 2, 280, menuPlayImage.getIconWidth(), menuPlayImage.getIconHeight());
         menuPage.add(menuPlay);
 
+        // High scores button
         menuHighScores.setBounds(305 + (350 - menuHighScoresImage.getIconWidth()) / 2, 380, menuHighScoresImage.getIconWidth(), menuHighScoresImage.getIconHeight());
         menuPage.add(menuHighScores);
 
+        // How to play button
         menuHowToPlay.setBounds(305 + (350 - menuHowToPlayImage.getIconWidth()) / 2, 480, menuHowToPlayImage.getIconWidth(), menuHowToPlayImage.getIconHeight());
         menuPage.add(menuHowToPlay);
     }
 
-    public void highScore() {
+    public void highScoreInit() {
+        /*
+            Creates all of the buttons for the high scores page. Adds their action listeners, sets their position and sizes,
+            and adds them to the highScorePage.
+         */
+
         highScorePage.setLayout(null);
+
+        // Home button
         home.addActionListener(this);
         home.setBounds(305 + (350 - homeImage.getIconWidth()) / 2, 600, homeImage.getIconWidth(), homeImage.getIconHeight());
         highScorePage.add(home);
 
     }
 
-    public void howToPlay() {
+    public void howToPlayInit() {
+        /*
+            Creates all of the buttons for all pages of the how to play menu. Adds their action listeners, sets their
+            position and sizes, and adds them to the howToPlay page.
+         */
+
+        // First page
         howToPlay1.setLayout(null);
+
+        // Done button
         done.addActionListener(this);
         done.setBounds(305 + (350 - doneImage.getIconWidth()) / 2, 680, doneImage.getIconWidth(), doneImage.getIconHeight());
         howToPlay1.add(done);
 
+        // Right arrow button
         rightArrow.addActionListener(this);
         rightArrow.setBounds(550, 680, rightArrowImage.getIconWidth(), rightArrowImage.getIconHeight());
         howToPlay1.add(rightArrow);
 
+        // Second page
         howToPlay2.setLayout(null);
+
+        // Done button
         done1.addActionListener(this);
         done1.setBounds(305 + (350 - doneImage.getIconWidth()) / 2, 680, doneImage.getIconWidth(), doneImage.getIconHeight());
         howToPlay2.add(done1);
 
+        // Left arrow button
         leftArrow1.addActionListener(this);
         leftArrow1.setBounds(360, 680, leftArrowImage.getIconWidth(), leftArrowImage.getIconHeight());
         howToPlay2.add(leftArrow1);
 
-
+        // Right arrow button
         rightArrow1.addActionListener(this);
         rightArrow1.setBounds(550, 680, rightArrowImage.getIconWidth(), rightArrowImage.getIconHeight());
         howToPlay2.add(rightArrow1);
 
+        // Third page
         howToPlay3.setLayout(null);
+
+        // Done button
         done2.addActionListener(this);
         done2.setBounds(305 + (350 - doneImage.getIconWidth()) / 2, 680, doneImage.getIconWidth(), doneImage.getIconHeight());
         howToPlay3.add(done2);
 
+        // How to play button
         leftArrow.addActionListener(this);
         leftArrow.setBounds(360, 680, leftArrowImage.getIconWidth(), leftArrowImage.getIconHeight());
         howToPlay3.add(leftArrow);
     }
 
     public void start(){
+        /*
+            Called when game starts. Starts the timer and resets nickname and score for high score purposes.
+         */
+
         myTimer.start();
         name = "";
         score = 0;
+        nickname.setText("");
     }
 
     public void gameOver(int score)  {
+        /*
+            Creates all of the buttons and text field to enter nickname for game over screen. Adds their action listeners,
+            sets their position and sizes, and adds them to the gameOver screen.
+         */
         gameOver.setLayout(null);
         cLayout.show(cards, "game over");
-        this.score = score;
+        this.score = score;  // Setting score in main class
 
-        nickname = new JTextField();
+        // Nickname text field
         nickname.addActionListener(this);
         nickname.setBounds(318, 400, 325, 50);
         nickname.setFont(new Font("Helvetica", Font.PLAIN, 36));
         gameOver.add(nickname);
 
-        System.out.println("Game Over!!!");
         gameOver.setScore(score);
 
-
+        // Home button
         home2.addActionListener(this);
         home2.setBounds(305 + (350 - homeImage.getIconWidth())/2, 600, homeImage.getIconWidth(), homeImage.getIconHeight());
         gameOver.add(home2);
@@ -192,7 +243,6 @@ public class Main extends JFrame implements ActionListener {
 
     public void actionPerformed(ActionEvent evt){
         Object source = evt.getSource();
-        menuPage.repaint();
 
         if (source == menuPlay) {
             cLayout.show(cards,"game");
@@ -236,7 +286,7 @@ public class Main extends JFrame implements ActionListener {
         else if (source == home2) {
             cLayout.show(cards,"menu");
             name = nickname.getText();
-            System.out.println(name + " " + score);
+
             try {
                 highScorePage.readFromFile("scores.txt");
                 highScorePage.addScore(name, score);
@@ -251,11 +301,6 @@ public class Main extends JFrame implements ActionListener {
 
         else if (source == nickname) {
             name = nickname.getText();
-        }
-
-        if (game != null) {
-            game.move();
-            game.repaint();
         }
     }
 
@@ -324,7 +369,10 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     public final File loseSound = new File("Assets/lose.wav");
     public final File theme = new File("Assets/Theme.wav");
 
-    AudioClip sound;
+    AudioClip sound1;
+    AudioClip sound2;
+    AudioClip sound3;
+    AudioClip sound4;
     AudioClip music;
 
     {
@@ -374,12 +422,12 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             hardDropped = true;
             System.out.println("Test");
             try {
-                sound = Applet.newAudioClip(dropTileSound.toURL());
+                sound1 = Applet.newAudioClip(dropTileSound.toURL());
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
 
-            sound.play();
+            sound1.play();
         }
         else if (e.getButton() == MouseEvent.BUTTON3 && !swapped) {
             hold();
@@ -416,12 +464,12 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             keysDown[KeyEvent.VK_UP] = true;
             board.rotate(activeTile, Tile.RIGHT);
             try {
-                sound = Applet.newAudioClip(rotateTileSound.toURL());
+                sound2 = Applet.newAudioClip(rotateTileSound.toURL());
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
 
-            sound.play();
+            sound2.play();
         }
 
         if (keys[KeyEvent.VK_SPACE] && !keysDown[KeyEvent.VK_SPACE]) {
@@ -430,12 +478,12 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             score += travelled * 2;
             hardDropped = true;
             try {
-                sound = Applet.newAudioClip(dropTileSound.toURL());
+                sound1 = Applet.newAudioClip(dropTileSound.toURL());
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
 
-            sound.play();
+            sound1.play();
         }
 
         if (keys[KeyEvent.VK_C] && !keysDown[KeyEvent.VK_C] && !swapped) {
@@ -445,12 +493,12 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         if (keys[KeyEvent.VK_Z] && !keysDown[KeyEvent.VK_Z]) {
             board.rotate(activeTile, Tile.LEFT);
             try {
-                sound = Applet.newAudioClip(rotateTileSound.toURL());
+                sound2 = Applet.newAudioClip(rotateTileSound.toURL());
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
 
-            sound.play();
+            sound2.play();
         }
     }
 
@@ -585,12 +633,12 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 tileStopped = false;
                 comboCount++;
                 try {
-                    sound = Applet.newAudioClip(lineDropSound.toURL());
+                    sound3 = Applet.newAudioClip(lineDropSound.toURL());
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
 
-                sound.play();
+                sound3.play();
             }
             else {
                 comboCount = 0;
@@ -646,12 +694,12 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             mainFrame.gameOver(score);
             started = false;
             try {
-                sound = Applet.newAudioClip(loseSound.toURL());
+                sound4 = Applet.newAudioClip(loseSound.toURL());
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
 
-            sound.play();
+            sound4.play();
             music.stop();
             return;
         }
