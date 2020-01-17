@@ -232,6 +232,7 @@ public class Main extends JFrame implements ActionListener {
         nickname.setFont(new Font("Helvetica", Font.PLAIN, 36));
         gameOver.add(nickname);
 
+        // Setting the score of the gameOver page
         gameOver.setScore(score);
 
         // Home button
@@ -242,15 +243,23 @@ public class Main extends JFrame implements ActionListener {
     }
 
     public void actionPerformed(ActionEvent evt){
+        /*
+            Deals with the buttons as they are pressed. Takes user to the specified page depending on what
+            button was clicked.
+         */
+
         Object source = evt.getSource();
 
+        // Play button; takes user to game panel
         if (source == menuPlay) {
             cLayout.show(cards,"game");
-            game.grabFocus();
-            game.init();
+            game.grabFocus();  // Focuses on game panel
+            game.init();  // Initiates game
         }
 
+        // High scores button; takes user to high score page
         else if (source == menuHighScores) {
+            // Read high scores from file to display to user
             try {
                 highScorePage.readFromFile("scores.txt");
             } catch (IOException e) {
@@ -259,14 +268,17 @@ public class Main extends JFrame implements ActionListener {
             cLayout.show(cards,"high score");
         }
 
+        // How to play button; takes user to how to play menu
         else if (source == menuHowToPlay) {
             cLayout.show(cards, "how to play 1");
         }
 
+        // Various home and done buttons; takes user to main menu
         else if (source == home || source == home1 || source == done1 || source == done2 || source == done) {
             cLayout.show(cards,"menu");
         }
 
+        // Right arrows for how to play menu to switch between pages
         else if (source == rightArrow) {
             cLayout.show(cards,"how to play 2");
         }
@@ -275,6 +287,7 @@ public class Main extends JFrame implements ActionListener {
             cLayout.show(cards,"how to play 3");
         }
 
+        // Left arrows for how to play menu to switch between pages
         else if (source == leftArrow1) {
             cLayout.show(cards,"how to play 1");
         }
@@ -283,10 +296,12 @@ public class Main extends JFrame implements ActionListener {
             cLayout.show(cards,"how to play 2");
         }
 
+        // Home button for game over screen. Updates high scores in addition to taking user to main menu.
         else if (source == home2) {
             cLayout.show(cards,"menu");
-            name = nickname.getText();
+            name = nickname.getText();  // Getting name from what user typed into text field.
 
+            // Updating high scores by writing to file
             try {
                 highScorePage.readFromFile("scores.txt");
                 highScorePage.addScore(name, score);
@@ -294,19 +309,22 @@ public class Main extends JFrame implements ActionListener {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
+            // Resetting score, name, and text in textfield
             score = 0;
             name = "";
             nickname.setText("");
         }
 
-        else if (source == nickname) {
-            name = nickname.getText();
-        }
     }
 
-
+    // Class that deals with actions within the game
     class TickListener implements ActionListener {
         public void actionPerformed(ActionEvent evt){
+            /*
+                Method is called every tick while the game is running. Calls the move and paint methods
+                which deal with game logic.
+            */
             if (game != null) {
                 game.grabFocus();
                 game.move();
@@ -324,43 +342,45 @@ public class Main extends JFrame implements ActionListener {
 }
 
 class GamePanel extends JPanel implements KeyListener, MouseListener {
-    private boolean started = false;
-    private boolean[] keys;
-    private boolean[] keysDown;
-    private Main mainFrame;
-    private Image back;
-    private Image hold;
-    private Image scoreBoard;
-    private Image nextTiles;
-    private Image boardImage;
+    private boolean started = false;  // Indicates if game has started
+    private boolean[] keys;   // Array of keys that keeps track if they are down or not
+    private boolean[] keysDown;   // Flag for keys that keeps track if a key is already down
+    private Main mainFrame;   // Frame of the program
 
-    private final int[] speedCurve = { 0, 60, 48, 37, 28, 21, 16, 11, 8, 6, 4, 3, 2 };
-    private int speed;
-    private int score;
-    private int level;
-    private int lines;
-    private Tile activeTile;
-    private Tile holdTile;
-    private ArrayList<Tile> queue = new ArrayList<>();
-    private Board board;
-    private int counter;
-    public final int CONTROL_DOWN_SPEED = 4;
-    public final int CONTROL_SIDE_SPEED = 8;
-    private int lastTile;
-    private boolean swapped;
-    private boolean tileStopped;
-    private int stopTime;
-    private boolean hardDropped;
-    private boolean fullRow;
-    private int rowTime;
-    private ArrayList<Integer> rows;
-    private int comboCount;
-    private boolean lastClearTetris;
+    // Images
+    private final Image back;  // Background
+    private final Image hold;   // Hold box
+    private final Image scoreBoard;  // Box that has score, lines, and level
+    private final Image nextTiles;  // Box that shows next tiles
+    private final Image boardImage;  // Tetris board
 
-    private Point mouse;
-    private Point offset;
-    private Point oldMouse;
-    private boolean mouseControls = true;
+    private final int[] speedCurve = { 0, 60, 48, 37, 28, 21, 16, 11, 8, 6, 4, 3, 2 };  // At level i, tile shifts down after speedCurve[i] frames
+
+    // Various game information
+    private int speed;  // Frequency that tiles drop down at
+    private int score;  // User's score
+    private int level;  // Current level. For every 10 lines cleared level increases by 1
+    private int lines;  // Number of lines cleared
+    private Tile activeTile;  // Tile that is currently being controlled by the user
+    private Tile holdTile;  // Tile currently held by user in the hold box
+    private ArrayList<Tile> queue = new ArrayList<>();  // Tiles that are queued, displayed in the next box
+    private Board board;  // Game board
+    private int counter;  // Number of frames the game has progressed
+    private int lastTile;  // Previously generated tile. Used to ensure a tile is not generated twice in a row
+    private boolean swapped;  // Stores if current tile was swapped in as you are not allowed to swap out a tile you swapped in from hold
+    private boolean tileStopped;  // Stores if current tile is stopped because it has hit a tile below
+    private int stopTime;  // Time in frames that the tile was stopped at
+    private boolean hardDropped;  // Indicates that a tile was hard dropped
+    private boolean fullRow;  // Indicates that the dropped tile has created a full row that is to be cleared.
+    private int rowTime;  // Time in frames that the row was made full at
+    private ArrayList<Integer> rows;  // Arraylist of all rows that are full that need to be cleared
+    private int comboCount;  // Counter for what the combo is at for scoring purposes
+    private boolean lastClearTetris;  // Indicates that the last clear was a Tetris (4 lines cleared) for combo scoring purposes
+
+    private Point mouse;  // Mouse position
+    private Point offset;  // Position of window
+    private Point oldMouse;  // Mouse position from previous frame. Used to check if mouse had moved
+    private boolean mouseControls = true;  // Indicates that the set of controls being used are the mouse set
 
     // Sounds
     public final File dropTileSound = new File("Assets/dropTile.wav");
@@ -369,12 +389,14 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     public final File loseSound = new File("Assets/lose.wav");
     public final File theme = new File("Assets/Theme.wav");
 
+    // Audio clip players for sounds
     AudioClip sound1;
     AudioClip sound2;
     AudioClip sound3;
     AudioClip sound4;
     AudioClip music;
 
+    // Loading music audio clip
     {
         try {
             music = Applet.newAudioClip(theme.toURL());
@@ -387,14 +409,19 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     public GamePanel(Main m) {
         keys = new boolean[KeyEvent.KEY_LAST+1];
         keysDown = new boolean[KeyEvent.KEY_LAST+1];
+
+        // Loading images
         back = new ImageIcon("Assets/background.jpg").getImage();
         hold = new ImageIcon("Assets/holdBox.PNG").getImage();
         scoreBoard = new ImageIcon("Assets/scoreBox.PNG").getImage();
         nextTiles = new ImageIcon("Assets/nextBox.PNG").getImage();
         boardImage = new ImageIcon("Assets/gameBox.jpg").getImage();
 
+        // Setting panel
         mainFrame = m;
         setSize(1000, 770);
+
+        // Adding action listeners
         addKeyListener(this);
         addMouseListener(this);
 
@@ -403,58 +430,59 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     }
 
     public void addNotify() {
+        // Gets focus
         super.addNotify();
         requestFocus();
-        mainFrame.start();
     }
 
     public void grabFocus() {
-        super.addNotify();
-        requestFocus();
+        // Gets focus
+        addNotify();
     }
 
-    @Override
+
     public void mouseClicked(MouseEvent e) {
-        mouseControls = true;
-        if (e.getButton() == MouseEvent.BUTTON1) {
-            int travelled = board.hardDrop(activeTile);
-            score += travelled * 2;
+        mouseControls = true;  // Sets controls to mouse controls
+
+        if (e.getButton() == MouseEvent.BUTTON1) {  // Left click
+            int travelled = board.hardDrop(activeTile);  // Hard dropping the tile and keeping track of how many rows it travelled
+            score += travelled * 2;  // Updating score
             hardDropped = true;
-            System.out.println("Test");
             try {
                 sound1 = Applet.newAudioClip(dropTileSound.toURL());
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
 
-            sound1.play();
+            //sound1.play();
         }
-        else if (e.getButton() == MouseEvent.BUTTON3 && !swapped) {
+        else if (e.getButton() == MouseEvent.BUTTON3 && !swapped) {  // Right click. Holds current tile if it was not a tile that was swapped in
             hold();
         }
 
     }
 
-    @Override
+    // Mouse listener methods that are not used but need to be included
     public void mousePressed(MouseEvent e) {
 
     }
 
-    @Override
+
     public void mouseReleased(MouseEvent e) {
 
     }
 
-    @Override
+
     public void mouseEntered(MouseEvent e) {
 
     }
 
-    @Override
+
     public void mouseExited(MouseEvent e) {
 
     }
 
+    // Unused method
     public void keyTyped(KeyEvent e) {}
 
     public void keyPressed(KeyEvent e) {
@@ -469,7 +497,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 ex.printStackTrace();
             }
 
-            sound2.play();
+            //sound2.play();
         }
 
         if (keys[KeyEvent.VK_SPACE] && !keysDown[KeyEvent.VK_SPACE]) {
@@ -483,7 +511,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 ex.printStackTrace();
             }
 
-            sound1.play();
+            //sound1.play();
         }
 
         if (keys[KeyEvent.VK_C] && !keysDown[KeyEvent.VK_C] && !swapped) {
@@ -498,7 +526,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 ex.printStackTrace();
             }
 
-            sound2.play();
+            //sound2.play();
         }
     }
 
@@ -549,6 +577,8 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         }
         board.addTile(activeTile);
 
+        mainFrame.start();
+
     }
 
     public void move() {
@@ -581,10 +611,12 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         }
 
         if (keys[KeyEvent.VK_DOWN]) {
-            speed = CONTROL_DOWN_SPEED;
+            int CONTROL_DOWN_SPEED = 4;
+            speed = Math.min(CONTROL_DOWN_SPEED, speedCurve[level]);
             mouseControls = false;
         }
 
+        int CONTROL_SIDE_SPEED = 8;
         if (keys[KeyEvent.VK_RIGHT] && counter % CONTROL_SIDE_SPEED == 0) {
             boolean success = board.canShiftRight(activeTile);
             if (success) {
@@ -638,7 +670,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     ex.printStackTrace();
                 }
 
-                sound3.play();
+                //sound3.play();
             }
             else {
                 comboCount = 0;
@@ -699,7 +731,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 ex.printStackTrace();
             }
 
-            sound4.play();
+            //sound4.play();
             music.stop();
             return;
         }
