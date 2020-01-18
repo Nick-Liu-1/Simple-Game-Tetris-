@@ -1,3 +1,10 @@
+/*
+    Board.java
+    Nick Liu + Zihan Dong
+    ICS4U-01
+    File containing the Board class which contain all of the methods for tile manipulation.
+ */
+
 import java.util.ArrayList;
 import java.util.*;
 
