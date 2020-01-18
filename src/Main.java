@@ -1,3 +1,9 @@
+/*
+    Main.java
+    Nick Liu + Zihan Dong
+    ICS4U-01
+    Main game class implementing the game as well as the menu.
+ */
 import java.awt.event.*;
 import java.io.*;
 import java.net.MalformedURLException;
@@ -390,11 +396,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     public final File theme = new File("Assets/Theme.wav");
 
     // Audio clip players for sounds
-    AudioClip sound1;
-    AudioClip sound2;
-    AudioClip sound3;
-    AudioClip sound4;
-    AudioClip music;
+    private AudioClip music;
 
     // Loading music audio clip
     {
@@ -448,13 +450,6 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             int travelled = board.hardDrop(activeTile);  // Hard dropping the tile and keeping track of how many rows it travelled
             score += travelled * 2;  // Updating score
             hardDropped = true;
-            try {
-                sound1 = Applet.newAudioClip(dropTileSound.toURL());
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-
-            //sound1.play();
         }
         else if (e.getButton() == MouseEvent.BUTTON3 && !swapped) {  // Right click. Holds current tile if it was not a tile that was swapped in
             hold();
@@ -486,52 +481,43 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     public void keyTyped(KeyEvent e) {}
 
     public void keyPressed(KeyEvent e) {
-        keys[e.getKeyCode()] = true;
+        /*
+            Method resolves key presses by performing the corresponding action based on what the key's purpose is.
+         */
+        keys[e.getKeyCode()] = true;  // Set key in key array to be down
 
-        if (keys[KeyEvent.VK_UP] && !keysDown[KeyEvent.VK_UP]) {
+        if (keys[KeyEvent.VK_UP] && !keysDown[KeyEvent.VK_UP]) {  // Up button
             keysDown[KeyEvent.VK_UP] = true;
-            board.rotate(activeTile, Tile.RIGHT);
-            try {
-                sound2 = Applet.newAudioClip(rotateTileSound.toURL());
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
+            board.rotate(activeTile, Tile.RIGHT);  // Rotate tile clockwise
 
-            //sound2.play();
         }
 
-        if (keys[KeyEvent.VK_SPACE] && !keysDown[KeyEvent.VK_SPACE]) {
+        if (keys[KeyEvent.VK_SPACE] && !keysDown[KeyEvent.VK_SPACE]) {  // Space button
             keysDown[KeyEvent.VK_SPACE] = true;
-            int travelled = board.hardDrop(activeTile);
-            score += travelled * 2;
+            int travelled = board.hardDrop(activeTile);  // Hard drop the active tile
+            score += travelled * 2;  // Update score
             hardDropped = true;
-            try {
-                sound1 = Applet.newAudioClip(dropTileSound.toURL());
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
 
-            //sound1.play();
         }
 
+        // C button for hold
         if (keys[KeyEvent.VK_C] && !keysDown[KeyEvent.VK_C] && !swapped) {
+            keysDown[KeyEvent.VK_C] = true;
             hold();
         }
 
+        // Z button for rotate counterclockwise
         if (keys[KeyEvent.VK_Z] && !keysDown[KeyEvent.VK_Z]) {
-            board.rotate(activeTile, Tile.LEFT);
-            try {
-                sound2 = Applet.newAudioClip(rotateTileSound.toURL());
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-
-            //sound2.play();
+            keysDown[KeyEvent.VK_Z] = true;
+            board.rotate(activeTile, Tile.LEFT);  // Rotate tile
         }
     }
 
     public void keyReleased(KeyEvent e) {
+        // When key is released set element in keys array to false
         keys[e.getKeyCode()] = false;
+
+        // Disable down flags if the key is no longer down
         if (!keys[KeyEvent.VK_UP]) {
             keysDown[KeyEvent.VK_UP] = false;
         }
@@ -539,9 +525,23 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         if (!keys[KeyEvent.VK_SPACE]) {
             keysDown[KeyEvent.VK_SPACE] = false;
         }
+
+        if (!keys[KeyEvent.VK_C]) {
+            keysDown[KeyEvent.VK_C] = false;
+        }
+
+        if (!keys[KeyEvent.VK_Z]) {
+            keysDown[KeyEvent.VK_Z] = false;
+        }
+
     }
 
     public void init() {
+        /*
+            Assigns all game values their default values, and generates tiles to start the game.
+         */
+
+        // Assigning game values their default values
         speed = 0;
         score = 0;
         level = 1;
@@ -569,23 +569,31 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         counter = 0;
 
         started = true;
-        music.loop();
+        music.loop();  // Playing the music
 
         activeTile = generateTile();
+        board.addTile(activeTile);
+        lastTile = activeTile.getId();
+
+        // Generating tiles of the queue
         for (int i = 0; i < 3; i++) {
             queue.add(generateTile());
         }
-        board.addTile(activeTile);
 
-        mainFrame.start();
+        mainFrame.start();  // Starting the game
 
     }
 
     public void move() {
+        /*
+            Deals with mouse position and movement. Calls the method to moves tiles. Is automatically called
+            by the api.
+         */
+
         if (started) {
-            mouse = MouseInfo.getPointerInfo().getLocation();
-            offset = getLocationOnScreen();
-            mouseControls = !(mouse.x == oldMouse.x && mouse.y == oldMouse.y);
+            mouse = MouseInfo.getPointerInfo().getLocation();  // Get mouse position
+            offset = getLocationOnScreen();  // Get window position
+            mouseControls = !(mouse.x == oldMouse.x && mouse.y == oldMouse.y);  // Checks if current mouse positionl
             oldMouse.x = mouse.x;
             oldMouse.y = mouse.y;
             //System.out.println("("+(mouse.x-offset.x)+", "+(mouse.y-offset.y)+")");
@@ -594,106 +602,116 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         }
     }
 
-    public void moveTile() {
-        speed = speedCurve[level];
-        rows = board.getFullRows();
-
-
-        if (mouseControls) {
-            int pos = (mouse.x - offset.x - 302) / 35;
-            while (board.canShiftRight(activeTile) && board.getTileX() < pos) {
-                board.shiftRight(activeTile);
-            }
-
-            while (board.canShiftLeft(activeTile) && board.getTileX() > pos) {
-                board.shiftLeft(activeTile);
-            }
+    public void mouseMoveTile() {
+        /*
+            Moves the active tile based on mouse position.
+         */
+        int pos = (mouse.x - offset.x - 302) / 35;  // Getting column
+        while (board.canShiftRight(activeTile) && board.getTileX() < pos) {
+            board.shiftRight(activeTile);  // Shift piece right until it reaches mouse pos if possible
         }
 
-        if (keys[KeyEvent.VK_DOWN]) {
-            int CONTROL_DOWN_SPEED = 4;
-            speed = Math.min(CONTROL_DOWN_SPEED, speedCurve[level]);
+        while (board.canShiftLeft(activeTile) && board.getTileX() > pos) {
+            board.shiftLeft(activeTile);  // Shift piece left until it reaches mouse pos if possible
+        }
+    }
+
+    public void moveTile() {
+        /*
+            Deals with the horizontal movements of the tile, as well as the shift down and the delays for
+            locking the tile when it reaches the bottom and clearing a row.
+         */
+        speed = speedCurve[level];  // Updating speed
+        rows = board.getFullRows();
+
+        // Moving the piece based on mouse controls if using mouse based movement
+        if (mouseControls) {
+            mouseMoveTile();
+        }
+
+        if (keys[KeyEvent.VK_DOWN]) {  // Soft drop
+            int CONTROL_DOWN_SPEED = 4;  // Speed of soft drop
+            speed = Math.min(CONTROL_DOWN_SPEED, speedCurve[level]);  // Doing min cause the later levels are faster than soft drop speed
             mouseControls = false;
         }
 
-        int CONTROL_SIDE_SPEED = 8;
+        int CONTROL_SIDE_SPEED = 8;  // Horizontal movement speed
         if (keys[KeyEvent.VK_RIGHT] && counter % CONTROL_SIDE_SPEED == 0) {
+            // Shift right
             boolean success = board.canShiftRight(activeTile);
             if (success) {
                 board.shiftRight(activeTile);
-                if (tileStopped) {
+                if (tileStopped) {  // Resetting stop time if tile is stopped
                     stopTime = counter;
                 }
             }
         }
         if (keys[KeyEvent.VK_LEFT] && counter % CONTROL_SIDE_SPEED == 0) {
+            // Shift left
             boolean success = board.canShiftLeft(activeTile);
             if (success) {
                 board.shiftLeft(activeTile);
-                if (tileStopped) {
+                if (tileStopped) {  // Resetting stop time if tile is stopped
                     stopTime = counter;
                 }
             }
         }
 
         boolean success = true;
-        if (counter % speed == 0 || tileStopped) {
+        if (counter % speed == 0 || tileStopped) {  // Shift down every speed frames
             success = board.canShiftDown(activeTile);
             if (success) {
                 board.shiftDown(activeTile);
                 if (keys[KeyEvent.VK_DOWN]) {
-                    score += 1;
+                    score += 1;  // Increasing score if soft dropped
                 }
             }
         }
 
         if (success) {
-            board.ghostTile(activeTile);
+            board.ghostTile(activeTile);  // Adding ghost tile
             tileStopped = false;
         }
-        else {
+        else {  // Setting stopTime if tile is stopped
             if (!tileStopped && !fullRow) {
                 tileStopped = true;
                 stopTime = counter;
             }
         }
 
+        // After the delay of 24 frames, tile is locked
         if ((tileStopped && counter - stopTime == 24 || hardDropped) && !fullRow) {
             if (rows.size() > 0) {
-                fullRow = true;
-                rowTime = counter;
+                fullRow = true;  // Stating there is a full row for the row clear delay
+                rowTime = counter;  // Setting time for the delay
                 tileStopped = false;
-                comboCount++;
-                try {
-                    sound3 = Applet.newAudioClip(lineDropSound.toURL());
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-
-                //sound3.play();
+                comboCount++;  // Increasing the combo count
             }
             else {
-                comboCount = 0;
-                lockTile();
+                comboCount = 0;  // Combo is broken
+                lockTile();  // Lock tile in place
                 hardDropped = false;
-                level = lines / 10 + 1;
-                lastClearTetris = false;
             }
         }
 
+        // 30 frame delay has passed
         if (fullRow && counter - rowTime == 30) {
             clearTiles();
-            lockTile();
+            lockTile();  // Lock tiles in place
             hardDropped = false;
-            level = lines / 10 + 1;
+            level = lines / 10 + 1;  // Update level
             fullRow = false;
         }
     }
 
     public void clearTiles() {
-        board.clearTiles(rows);
-        lines += rows.size();
+        /*
+            Clears the rows in the board that are full and updates score accordingly.
+         */
+        board.clearTiles(rows);  // Clear tiles in the board
+        lines += rows.size();  // Update lines cleared
 
+        // Scoring the cleared lines
         switch (rows.size()) {
             case(1):
                 score += 100 * level;
@@ -713,49 +731,53 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 break;
         }
         if (rows.size() < 4) {
-            lastClearTetris = false;
+            lastClearTetris = false;  // If the clear was not a Tetris reset flag
         }
-        score += 50 * level * comboCount;
+        score += 50 * level * comboCount;  // Combo score
     }
 
     public void lockTile() {
-        activeTile = queue.get(0);
+        /*
+            Generate a new tile and add it to the game when the old one is locked.
+         */
 
-        boolean canAddTile = board.addTile(activeTile);
-        if (!canAddTile) {
-            mainFrame.gameOver(score);
+        activeTile = queue.get(0);  // Get a new tile to be the active tile
+
+        boolean canAddTile = board.addTile(activeTile);  // Add the active tile to the board
+        if (!canAddTile) {  // If tile cannot be added, the game is over
+            mainFrame.gameOver(score);  // Calling game over
             started = false;
-            try {
-                sound4 = Applet.newAudioClip(loseSound.toURL());
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-
-            //sound4.play();
             music.stop();
             return;
         }
 
-        queue.remove(0);
-        queue.add(generateTile());
-        if (swapped) {
-            swapped = false;
-        }
+        queue.remove(0);  // Remove active tile from queue
+        queue.add(generateTile());  // Generate new tile
+
+        swapped = false;
         tileStopped = false;
     }
 
     public void hold() {
-        board.removeTile(activeTile);
-        if (holdTile == null) {
-            activeTile.resetToDefault();
-            holdTile = activeTile;
+        /*
+            Deals with the hold function of the game.
+         */
+        board.removeTile(activeTile);  // Remove the active tile from the board
+        if (holdTile == null) {  // First tile a piece is held, holdTile is null
+            activeTile.resetToDefault();  // Reset activeTile's orientation to default orientation
+            holdTile = activeTile;  // Set holdTile to be activeTile
+
+            // Getting the new activeTile
             activeTile = queue.get(0);
             board.addTile(activeTile);
             queue.remove(0);
             queue.add(generateTile());
+            swapped = true;
         }
         else {
-            activeTile.resetToDefault();
+            activeTile.resetToDefault();  // Reset activeTile's orientation to default orientation
+
+            // Swapping the holdTile and the activeTile
             Tile temp = holdTile;
             holdTile = activeTile;
             activeTile = temp;
@@ -766,6 +788,9 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     }
 
     public Tile generateTile() {
+        /*
+            Randomly generate a new tile. Ensures it is not the same as previous tile.
+         */
         int choice;
         do {
             choice = Main.randint(1, 7);
@@ -776,6 +801,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     }
 
     public void drawUI(Graphics g) {
+        // Drawing the basic ui
         g.drawImage(back,0,0,null);
         g.drawImage(hold, 60, 55, null);
         g.drawImage(scoreBoard, 60, 360, null);
@@ -793,30 +819,30 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         // Text
         if (g instanceof Graphics2D) {
             Graphics2D g2 = (Graphics2D) g;
+
+            // Creating font
             Font helvetica = new Font("Helvetica", Font.PLAIN, 36);
             FontMetrics fontMetrics = new JLabel().getFontMetrics(helvetica);
-
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g2.setFont(helvetica);
             g2.setColor(Color.WHITE);
 
-            int x, y;
-            int width;
+            int x, y;  // x, y coordinates of text
+            int width;  // width of text
 
-            // Score
+            // Score text
             width = fontMetrics.stringWidth(String.valueOf(score));
             x = 75 + (185 - width) / 2 + 3;
             y = 457;
             g2.drawString(String.valueOf(score),x,y);
 
-            // Level
+            // Level text
             width = fontMetrics.stringWidth(String.valueOf(level));
             x = 75 + (185 - width) / 2 + 3;
             y = 550;
             g2.drawString(String.valueOf(level),x,y);
 
-
-            // Lines
+            // Lines text
             width = fontMetrics.stringWidth(String.valueOf(lines));
             x = 75 + (185 - width) / 2 + 3;
             y = 645;
@@ -825,6 +851,9 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     }
 
     public void drawPreviewTile(Graphics g, Tile tile, int x, int y, int width, int height) {
+        /*
+            Draws queued tiles in the next box. Draws the tile in a 4x3 imaginary grid.
+         */
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 3; j++) {
                 if (tile != null && tile.getTile()[i][j] != 0) {
@@ -837,22 +866,28 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     }
 
     public void drawTiles(Graphics g) {
+        /*
+            Drawing tiles on the board. Fades the tiles if they are locked or cleared based on stopTime or rowTime.
+         */
+
         Graphics2D g2d = (Graphics2D) g.create();
         float alpha;
 
+        // Iterating through the board
         for (int i = 0; i < board.getBoard().length; i++) {
             for (int j = 2; j < board.getBoard()[0].length; j++) {
                 if (i - board.getTileX() < 4 && i - board.getTileX() >= 0 && j - board.getTileY() < 4 && j - board.getTileY() >= 0
                     && board.getBoard()[i][j] == activeTile.getTile()[i-board.getTileX()][j-board.getTileY()] && tileStopped) {
-                    alpha = Math.min(1, 1 / ((float) ((counter - stopTime) % 24)) + (float) 0.2);
+                    alpha = Math.min(1, 1 / ((float) ((counter - stopTime) % 24)) + (float) 0.2);  // Setting alpha value for stopped tile cells
                 }
                 else if (fullRow && rows.contains(j)) {
-                    alpha = Math.min(1, 1 / ((float) ((counter - rowTime))));
+                    alpha = Math.min(1, 1 / ((float) ((counter - rowTime))));  // Setting alpha value for all full rows
                 }
                 else {
-                    alpha = 1;
+                    alpha = 1;  // Default value
                 }
 
+                // Drawing the tile in the cell
                 Image inImage = board.getBoard()[i][j] > 0 ? Tile.images[board.getBoard()[i][j]] : GhostTile.images[-board.getBoard()[i][j]];
                 g2d.setComposite(AlphaComposite.SrcOver.derive(alpha));
                 int x = 306 + 35 * i;
@@ -864,6 +899,9 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     }
 
     public void paintComponent(Graphics g) {
+        /*
+            Draws the UI and tiles. Automatically called.
+         */
         drawUI(g);
         drawTiles(g);
     }
