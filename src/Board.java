@@ -25,7 +25,7 @@ public class Board {
         return true;  // If none are invalid then return valid
     }
 
-    public boolean canShiftDown(GhostTile tile, int x, int y) {
+    private boolean canShiftDown(GhostTile tile, int x, int y) {
         /*
             Checks if the tile can shift down by looking at every cell in the tile and seeing what is below it. If the
             cell below is not empty and not part of the tile then it cannot shift down.
@@ -62,7 +62,7 @@ public class Board {
 
     }
 
-    public void shiftDown(int row) {
+    private void shiftDown(int row) {
         /*
             Shifts down all rows above specified row for line clearing purposes.
          */
@@ -174,7 +174,7 @@ public class Board {
             Shifts all cells of the tile one column right by iterating through each cell.
          */
 
-        // Iterating througj
+        // Iterating through
         for (int i = 3; i >= 0; i--) {
             for (int j = 0; j < 4; j++) {
                 if (tile.getTile()[i][j] != 0) {
@@ -236,7 +236,7 @@ public class Board {
         return count;
     }
 
-    public void hardDrop(GhostTile tile) {
+    private void hardDrop(GhostTile tile) {
         /*
             Shifts GhostTile down as much as possible.
          */
