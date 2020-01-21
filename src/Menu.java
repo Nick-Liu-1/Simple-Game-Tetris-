@@ -56,8 +56,7 @@ class HighScores extends Menu {
     private final Image grid = new ImageIcon("Assets/highScores.png").getImage();
 
 
-    @Override
-    public void paintComponent(Graphics g) {
+    public void paintComponent(Graphics g) { //draws UI and images
         drawBasicUI(g);
         g.drawImage(grid, 317, 50, null);
 
@@ -146,7 +145,7 @@ class GameOver extends Menu {
     private final Image gameOverText = new ImageIcon("Assets/gameOver.png").getImage();
     private int score;  // Player score
 
-    @Override
+
     public void paintComponent(Graphics g) {
         drawBasicUI(g);
         g.drawImage(gameOverText, 327, 50, null);
@@ -200,10 +199,8 @@ class HowToPlay extends Menu {
         this.image = images[page-1];  // Set image to corresponding page
     }
 
-    @Override
     public void paintComponent(Graphics g) {
         g.drawImage(image, 0, 0, null);
-
     }
 
 }
